@@ -2,6 +2,7 @@ module pep8analysis
 
 import backbone
 import ast
+import model
 
 redef class AnalysisManager
 
@@ -21,7 +22,7 @@ redef class AnalysisManager
 		assert node_program != null
 
 		# Build program model
-		#build_model
+		build_model
 
 		# Create CFG
 		# build_cfg
