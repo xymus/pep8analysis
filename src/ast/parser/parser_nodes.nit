@@ -88,8 +88,14 @@ class AError
 private init noinit do end
 end
 
-class ALine super Prod end
-class AInstruction super Prod end
+class ALine
+	super Prod
+    readable var _n_comment: nullable TComment = null
+end
+class AInstruction
+	super Prod
+    readable writable var _n_id: TId
+end
 class AAccess super Prod end
 class AValue super Prod end
 class ADirective super Prod end
@@ -102,21 +108,18 @@ class AListing
 end
 class AEmptyLine
 	super ALine
-    readable var _n_comment: nullable TComment = null
     readable var _n_eol: TEol
 end
 class AInstructionLine
 	super ALine
     readable var _n_label_decl: nullable ALabelDecl = null
     readable var _n_instruction: AInstruction
-    readable var _n_comment: nullable TComment = null
     readable var _n_eol: TEol
 end
 class ADirectiveLine
 	super ALine
     readable var _n_label_decl: nullable ALabelDecl = null
     readable var _n_directive: ADirective
-    readable var _n_comment: nullable TComment = null
     readable var _n_eol: TEol
 end
 class ALabelDecl
@@ -126,12 +129,10 @@ class ALabelDecl
 end
 class AUnaryInstruction
 	super AInstruction
-    readable var _n_id: TId
 end
 class ABinaryInstruction
 	super AInstruction
-    readable var _n_id: TId
-    readable var _n_access: AAccess
+    readable writable var _n_access: AAccess
 end
 class AImmediateAccess
 	super AAccess
