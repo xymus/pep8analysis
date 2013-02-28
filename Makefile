@@ -8,4 +8,4 @@ doc/index.html:
 tests:
 	make -C tests
 
-.PHONY: bin/pep8analysis tests
+.PHONY: bin/pep8analysis tests doc/index.html
