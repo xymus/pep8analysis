@@ -89,10 +89,10 @@ end
 class AListing super Prod end
 class ALine super Prod end
 class ALabelDecl super Prod end
-class AStmt super Prod end
+class AInstruction super Prod end
 class AAccess super Prod end
 class AValue super Prod end
-class AData super Prod end
+class ADirective super Prod end
 
 class AListing
 	super AListing
@@ -105,17 +105,17 @@ class AEmptyLine
     readable var _n_comment: nullable TComment = null
     readable var _n_eol: TEol
 end
-class AWithExprLine
+class AInstructionLine
 	super ALine
     readable var _n_label_decl: nullable ALabelDecl = null
-    readable var _n_stmt: AStmt
+    readable var _n_instruction: AInstruction
     readable var _n_comment: nullable TComment = null
     readable var _n_eol: TEol
 end
-class ADataLine
+class ADirectiveLine
 	super ALine
     readable var _n_label_decl: nullable ALabelDecl = null
-    readable var _n_data: AData
+    readable var _n_directive: ADirective
     readable var _n_comment: nullable TComment = null
     readable var _n_eol: TEol
 end
@@ -124,12 +124,12 @@ class ALabelDecl
     readable var _n_id: TId
     readable var _n_colon: TColon
 end
-class AUnaryStmt
-	super AStmt
+class AUnaryInstruction
+	super AInstruction
     readable var _n_id: TId
 end
-class ABinaryStmt
-	super AStmt
+class ABinaryInstruction
+	super AInstruction
     readable var _n_id: TId
     readable var _n_access: AAccess
 end
@@ -163,38 +163,38 @@ class AHexValue
 	super AValue
     readable var _n_hex: THex
 end
-class AByteData
-	super AData
+class AByteDirective
+	super ADirective
     readable var _n_tk_byte: TTkByte
     readable var _n_value: AValue
 end
-class AWordData
-	super AData
+class AWordDirective
+	super ADirective
     readable var _n_tk_word: TTkWord
     readable var _n_value: AValue
 end
-class ABlockData
-	super AData
+class ABlockDirective
+	super ADirective
     readable var _n_tk_block: TTkBlock
     readable var _n_number: TNumber
 end
-class AAsciiData
-	super AData
+class AAsciiDirective
+	super ADirective
     readable var _n_tk_ascii: TTkAscii
     readable var _n_string: TString
 end
-class AAddrssData
-	super AData
+class AAddrssDirective
+	super ADirective
     readable var _n_tk_addrss: TTkAddrss
     readable var _n_value: AValue
 end
-class AEquateData
-	super AData
+class AEquateDirective
+	super ADirective
     readable var _n_tk_equate: TTkEquate
     readable var _n_value: AValue
 end
-class ABurnData
-	super AData
+class ABurnDirective
+	super ADirective
     readable var _n_tk_burn: TTkBurn
     readable var _n_value: AValue
 end

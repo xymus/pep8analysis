@@ -94,12 +94,12 @@ listing = [lines]:line* label_decl? end_block;
 
 line
 	= {empty} comment? eol
-	| {with_expr} label_decl? stmt comment? eol
-	| {data} label_decl? data comment? eol;
+	| {instruction} label_decl? instruction comment? eol
+	| {directive} label_decl? directive comment? eol;
 
 label_decl = id colon;
 
-stmt
+instruction
 	= {unary} id
 	| {binary} id access;
 
@@ -116,7 +116,7 @@ value
 	| {char} char
 	| {string} string
 	| {hex} hex;
-data
+directive
 	= {byte} tk_byte value
 	| {word} tk_word value
 	| {block} tk_block number

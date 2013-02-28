@@ -435,13 +435,13 @@ private class ReduceAction6
 					var node_list: nullable Object = null
 					var nodearraylist2 = p.pop
 					var nodearraylist1 = p.pop
-					var pstmtnode3 = nodearraylist1
-					assert pstmtnode3 isa nullable AStmt
+					var pinstructionnode3 = nodearraylist1
+					assert pinstructionnode3 isa nullable AInstruction
 					var teolnode5 = nodearraylist2
 					assert teolnode5 isa nullable TEol
-					var plinenode1: nullable AWithExprLine = new AWithExprLine.init_awithexprline(
+					var plinenode1: nullable AInstructionLine = new AInstructionLine.init_ainstructionline(
 						null,
-						pstmtnode3,
+						pinstructionnode3,
 						null,
 						teolnode5
 					)
@@ -459,13 +459,13 @@ private class ReduceAction7
 					var nodearraylist1 = p.pop
 					var plabeldeclnode2 = nodearraylist1
 					assert plabeldeclnode2 isa nullable ALabelDecl
-					var pstmtnode3 = nodearraylist2
-					assert pstmtnode3 isa nullable AStmt
+					var pinstructionnode3 = nodearraylist2
+					assert pinstructionnode3 isa nullable AInstruction
 					var teolnode5 = nodearraylist3
 					assert teolnode5 isa nullable TEol
-					var plinenode1: nullable AWithExprLine = new AWithExprLine.init_awithexprline(
+					var plinenode1: nullable AInstructionLine = new AInstructionLine.init_ainstructionline(
 						plabeldeclnode2,
-						pstmtnode3,
+						pinstructionnode3,
 						null,
 						teolnode5
 					)
@@ -481,15 +481,15 @@ private class ReduceAction8
 					var nodearraylist3 = p.pop
 					var nodearraylist2 = p.pop
 					var nodearraylist1 = p.pop
-					var pstmtnode3 = nodearraylist1
-					assert pstmtnode3 isa nullable AStmt
+					var pinstructionnode3 = nodearraylist1
+					assert pinstructionnode3 isa nullable AInstruction
 					var tcommentnode4 = nodearraylist2
 					assert tcommentnode4 isa nullable TComment
 					var teolnode5 = nodearraylist3
 					assert teolnode5 isa nullable TEol
-					var plinenode1: nullable AWithExprLine = new AWithExprLine.init_awithexprline(
+					var plinenode1: nullable AInstructionLine = new AInstructionLine.init_ainstructionline(
 						null,
-						pstmtnode3,
+						pinstructionnode3,
 						tcommentnode4,
 						teolnode5
 					)
@@ -508,15 +508,15 @@ private class ReduceAction9
 					var nodearraylist1 = p.pop
 					var plabeldeclnode2 = nodearraylist1
 					assert plabeldeclnode2 isa nullable ALabelDecl
-					var pstmtnode3 = nodearraylist2
-					assert pstmtnode3 isa nullable AStmt
+					var pinstructionnode3 = nodearraylist2
+					assert pinstructionnode3 isa nullable AInstruction
 					var tcommentnode4 = nodearraylist3
 					assert tcommentnode4 isa nullable TComment
 					var teolnode5 = nodearraylist4
 					assert teolnode5 isa nullable TEol
-					var plinenode1: nullable AWithExprLine = new AWithExprLine.init_awithexprline(
+					var plinenode1: nullable AInstructionLine = new AInstructionLine.init_ainstructionline(
 						plabeldeclnode2,
-						pstmtnode3,
+						pinstructionnode3,
 						tcommentnode4,
 						teolnode5
 					)
@@ -531,13 +531,13 @@ private class ReduceAction10
 					var node_list: nullable Object = null
 					var nodearraylist2 = p.pop
 					var nodearraylist1 = p.pop
-					var pdatanode3 = nodearraylist1
-					assert pdatanode3 isa nullable AData
+					var pdirectivenode3 = nodearraylist1
+					assert pdirectivenode3 isa nullable ADirective
 					var teolnode5 = nodearraylist2
 					assert teolnode5 isa nullable TEol
-					var plinenode1: nullable ADataLine = new ADataLine.init_adataline(
+					var plinenode1: nullable ADirectiveLine = new ADirectiveLine.init_adirectiveline(
 						null,
-						pdatanode3,
+						pdirectivenode3,
 						null,
 						teolnode5
 					)
@@ -555,13 +555,13 @@ private class ReduceAction11
 					var nodearraylist1 = p.pop
 					var plabeldeclnode2 = nodearraylist1
 					assert plabeldeclnode2 isa nullable ALabelDecl
-					var pdatanode3 = nodearraylist2
-					assert pdatanode3 isa nullable AData
+					var pdirectivenode3 = nodearraylist2
+					assert pdirectivenode3 isa nullable ADirective
 					var teolnode5 = nodearraylist3
 					assert teolnode5 isa nullable TEol
-					var plinenode1: nullable ADataLine = new ADataLine.init_adataline(
+					var plinenode1: nullable ADirectiveLine = new ADirectiveLine.init_adirectiveline(
 						plabeldeclnode2,
-						pdatanode3,
+						pdirectivenode3,
 						null,
 						teolnode5
 					)
@@ -577,15 +577,15 @@ private class ReduceAction12
 					var nodearraylist3 = p.pop
 					var nodearraylist2 = p.pop
 					var nodearraylist1 = p.pop
-					var pdatanode3 = nodearraylist1
-					assert pdatanode3 isa nullable AData
+					var pdirectivenode3 = nodearraylist1
+					assert pdirectivenode3 isa nullable ADirective
 					var tcommentnode4 = nodearraylist2
 					assert tcommentnode4 isa nullable TComment
 					var teolnode5 = nodearraylist3
 					assert teolnode5 isa nullable TEol
-					var plinenode1: nullable ADataLine = new ADataLine.init_adataline(
+					var plinenode1: nullable ADirectiveLine = new ADirectiveLine.init_adirectiveline(
 						null,
-						pdatanode3,
+						pdirectivenode3,
 						tcommentnode4,
 						teolnode5
 					)
@@ -604,15 +604,15 @@ private class ReduceAction13
 					var nodearraylist1 = p.pop
 					var plabeldeclnode2 = nodearraylist1
 					assert plabeldeclnode2 isa nullable ALabelDecl
-					var pdatanode3 = nodearraylist2
-					assert pdatanode3 isa nullable AData
+					var pdirectivenode3 = nodearraylist2
+					assert pdirectivenode3 isa nullable ADirective
 					var tcommentnode4 = nodearraylist3
 					assert tcommentnode4 isa nullable TComment
 					var teolnode5 = nodearraylist4
 					assert teolnode5 isa nullable TEol
-					var plinenode1: nullable ADataLine = new ADataLine.init_adataline(
+					var plinenode1: nullable ADirectiveLine = new ADirectiveLine.init_adirectiveline(
 						plabeldeclnode2,
-						pdatanode3,
+						pdirectivenode3,
 						tcommentnode4,
 						teolnode5
 					)
@@ -647,10 +647,10 @@ private class ReduceAction15
 					var nodearraylist1 = p.pop
 					var tidnode2 = nodearraylist1
 					assert tidnode2 isa nullable TId
-					var pstmtnode1: nullable AUnaryStmt = new AUnaryStmt.init_aunarystmt(
+					var pinstructionnode1: nullable AUnaryInstruction = new AUnaryInstruction.init_aunaryinstruction(
 						tidnode2
 					)
-					node_list = pstmtnode1
+					node_list = pinstructionnode1
 					p.push(p.go_to(_goto), node_list)
 	end
 end
@@ -665,11 +665,11 @@ private class ReduceAction16
 					assert tidnode2 isa nullable TId
 					var paccessnode3 = nodearraylist2
 					assert paccessnode3 isa nullable AAccess
-					var pstmtnode1: nullable ABinaryStmt = new ABinaryStmt.init_abinarystmt(
+					var pinstructionnode1: nullable ABinaryInstruction = new ABinaryInstruction.init_abinaryinstruction(
 						tidnode2,
 						paccessnode3
 					)
-					node_list = pstmtnode1
+					node_list = pinstructionnode1
 					p.push(p.go_to(_goto), node_list)
 	end
 end
@@ -797,11 +797,11 @@ private class ReduceAction24
 					assert ttkbytenode2 isa nullable TTkByte
 					var pvaluenode3 = nodearraylist2
 					assert pvaluenode3 isa nullable AValue
-					var pdatanode1: nullable AByteData = new AByteData.init_abytedata(
+					var pdirectivenode1: nullable AByteDirective = new AByteDirective.init_abytedirective(
 						ttkbytenode2,
 						pvaluenode3
 					)
-					node_list = pdatanode1
+					node_list = pdirectivenode1
 					p.push(p.go_to(_goto), node_list)
 	end
 end
@@ -816,11 +816,11 @@ private class ReduceAction25
 					assert ttkwordnode2 isa nullable TTkWord
 					var pvaluenode3 = nodearraylist2
 					assert pvaluenode3 isa nullable AValue
-					var pdatanode1: nullable AWordData = new AWordData.init_aworddata(
+					var pdirectivenode1: nullable AWordDirective = new AWordDirective.init_aworddirective(
 						ttkwordnode2,
 						pvaluenode3
 					)
-					node_list = pdatanode1
+					node_list = pdirectivenode1
 					p.push(p.go_to(_goto), node_list)
 	end
 end
@@ -835,11 +835,11 @@ private class ReduceAction26
 					assert ttkblocknode2 isa nullable TTkBlock
 					var tnumbernode3 = nodearraylist2
 					assert tnumbernode3 isa nullable TNumber
-					var pdatanode1: nullable ABlockData = new ABlockData.init_ablockdata(
+					var pdirectivenode1: nullable ABlockDirective = new ABlockDirective.init_ablockdirective(
 						ttkblocknode2,
 						tnumbernode3
 					)
-					node_list = pdatanode1
+					node_list = pdirectivenode1
 					p.push(p.go_to(_goto), node_list)
 	end
 end
@@ -854,11 +854,11 @@ private class ReduceAction27
 					assert ttkasciinode2 isa nullable TTkAscii
 					var tstringnode3 = nodearraylist2
 					assert tstringnode3 isa nullable TString
-					var pdatanode1: nullable AAsciiData = new AAsciiData.init_aasciidata(
+					var pdirectivenode1: nullable AAsciiDirective = new AAsciiDirective.init_aasciidirective(
 						ttkasciinode2,
 						tstringnode3
 					)
-					node_list = pdatanode1
+					node_list = pdirectivenode1
 					p.push(p.go_to(_goto), node_list)
 	end
 end
@@ -873,11 +873,11 @@ private class ReduceAction28
 					assert ttkaddrssnode2 isa nullable TTkAddrss
 					var pvaluenode3 = nodearraylist2
 					assert pvaluenode3 isa nullable AValue
-					var pdatanode1: nullable AAddrssData = new AAddrssData.init_aaddrssdata(
+					var pdirectivenode1: nullable AAddrssDirective = new AAddrssDirective.init_aaddrssdirective(
 						ttkaddrssnode2,
 						pvaluenode3
 					)
-					node_list = pdatanode1
+					node_list = pdirectivenode1
 					p.push(p.go_to(_goto), node_list)
 	end
 end
@@ -892,11 +892,11 @@ private class ReduceAction29
 					assert ttkequatenode2 isa nullable TTkEquate
 					var pvaluenode3 = nodearraylist2
 					assert pvaluenode3 isa nullable AValue
-					var pdatanode1: nullable AEquateData = new AEquateData.init_aequatedata(
+					var pdirectivenode1: nullable AEquateDirective = new AEquateDirective.init_aequatedirective(
 						ttkequatenode2,
 						pvaluenode3
 					)
-					node_list = pdatanode1
+					node_list = pdirectivenode1
 					p.push(p.go_to(_goto), node_list)
 	end
 end
@@ -911,11 +911,11 @@ private class ReduceAction30
 					assert ttkburnnode2 isa nullable TTkBurn
 					var pvaluenode3 = nodearraylist2
 					assert pvaluenode3 isa nullable AValue
-					var pdatanode1: nullable ABurnData = new ABurnData.init_aburndata(
+					var pdirectivenode1: nullable ABurnDirective = new ABurnDirective.init_aburndirective(
 						ttkburnnode2,
 						pvaluenode3
 					)
-					node_list = pdatanode1
+					node_list = pdirectivenode1
 					p.push(p.go_to(_goto), node_list)
 	end
 end

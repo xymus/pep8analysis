@@ -1,5 +1,4 @@
 bin/pep8analysis:
-	make -C src/parser
 	mkdir -p bin
 	nitc -o bin/pep8analysis src/pep8analysis.nit
 

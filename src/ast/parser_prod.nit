@@ -186,12 +186,12 @@ redef class AEmptyLine
         v.enter_visit(_n_eol)
     end
 end
-redef class AWithExprLine
+redef class AInstructionLine
     private init empty_init do end
 
-    init init_awithexprline (
+    init init_ainstructionline (
             n_label_decl: nullable ALabelDecl,
-            n_stmt: nullable AStmt,
+            n_instruction: nullable AInstruction,
             n_comment: nullable TComment,
             n_eol: nullable TEol
     )
@@ -201,8 +201,8 @@ redef class AWithExprLine
 	if n_label_decl != null then
 		n_label_decl.parent = self
 	end
-        _n_stmt = n_stmt.as(not null)
-	n_stmt.parent = self
+        _n_instruction = n_instruction.as(not null)
+	n_instruction.parent = self
         _n_comment = n_comment
 	if n_comment != null then
 		n_comment.parent = self
@@ -223,11 +223,11 @@ redef class AWithExprLine
             end
             return
 	end
-        if _n_stmt == old_child then
+        if _n_instruction == old_child then
             if new_child != null then
                 new_child.parent = self
-		assert new_child isa AStmt
-                _n_stmt = new_child
+		assert new_child isa AInstruction
+                _n_instruction = new_child
 	    else
 		abort
             end
@@ -260,19 +260,19 @@ redef class AWithExprLine
         if _n_label_decl != null then
             v.enter_visit(_n_label_decl.as(not null))
         end
-        v.enter_visit(_n_stmt)
+        v.enter_visit(_n_instruction)
         if _n_comment != null then
             v.enter_visit(_n_comment.as(not null))
         end
         v.enter_visit(_n_eol)
     end
 end
-redef class ADataLine
+redef class ADirectiveLine
     private init empty_init do end
 
-    init init_adataline (
+    init init_adirectiveline (
             n_label_decl: nullable ALabelDecl,
-            n_data: nullable AData,
+            n_directive: nullable ADirective,
             n_comment: nullable TComment,
             n_eol: nullable TEol
     )
@@ -282,8 +282,8 @@ redef class ADataLine
 	if n_label_decl != null then
 		n_label_decl.parent = self
 	end
-        _n_data = n_data.as(not null)
-	n_data.parent = self
+        _n_directive = n_directive.as(not null)
+	n_directive.parent = self
         _n_comment = n_comment
 	if n_comment != null then
 		n_comment.parent = self
@@ -304,11 +304,11 @@ redef class ADataLine
             end
             return
 	end
-        if _n_data == old_child then
+        if _n_directive == old_child then
             if new_child != null then
                 new_child.parent = self
-		assert new_child isa AData
-                _n_data = new_child
+		assert new_child isa ADirective
+                _n_directive = new_child
 	    else
 		abort
             end
@@ -341,7 +341,7 @@ redef class ADataLine
         if _n_label_decl != null then
             v.enter_visit(_n_label_decl.as(not null))
         end
-        v.enter_visit(_n_data)
+        v.enter_visit(_n_directive)
         if _n_comment != null then
             v.enter_visit(_n_comment.as(not null))
         end
@@ -393,10 +393,10 @@ redef class ALabelDecl
         v.enter_visit(_n_colon)
     end
 end
-redef class AUnaryStmt
+redef class AUnaryInstruction
     private init empty_init do end
 
-    init init_aunarystmt (
+    init init_aunaryinstruction (
             n_id: nullable TId
     )
     do
@@ -424,10 +424,10 @@ redef class AUnaryStmt
         v.enter_visit(_n_id)
     end
 end
-redef class ABinaryStmt
+redef class ABinaryInstruction
     private init empty_init do end
 
-    init init_abinarystmt (
+    init init_abinaryinstruction (
             n_id: nullable TId,
             n_access: nullable AAccess
     )
@@ -714,10 +714,10 @@ redef class AHexValue
         v.enter_visit(_n_hex)
     end
 end
-redef class AByteData
+redef class AByteDirective
     private init empty_init do end
 
-    init init_abytedata (
+    init init_abytedirective (
             n_tk_byte: nullable TTkByte,
             n_value: nullable AValue
     )
@@ -759,10 +759,10 @@ redef class AByteData
         v.enter_visit(_n_value)
     end
 end
-redef class AWordData
+redef class AWordDirective
     private init empty_init do end
 
-    init init_aworddata (
+    init init_aworddirective (
             n_tk_word: nullable TTkWord,
             n_value: nullable AValue
     )
@@ -804,10 +804,10 @@ redef class AWordData
         v.enter_visit(_n_value)
     end
 end
-redef class ABlockData
+redef class ABlockDirective
     private init empty_init do end
 
-    init init_ablockdata (
+    init init_ablockdirective (
             n_tk_block: nullable TTkBlock,
             n_number: nullable TNumber
     )
@@ -849,10 +849,10 @@ redef class ABlockData
         v.enter_visit(_n_number)
     end
 end
-redef class AAsciiData
+redef class AAsciiDirective
     private init empty_init do end
 
-    init init_aasciidata (
+    init init_aasciidirective (
             n_tk_ascii: nullable TTkAscii,
             n_string: nullable TString
     )
@@ -894,10 +894,10 @@ redef class AAsciiData
         v.enter_visit(_n_string)
     end
 end
-redef class AAddrssData
+redef class AAddrssDirective
     private init empty_init do end
 
-    init init_aaddrssdata (
+    init init_aaddrssdirective (
             n_tk_addrss: nullable TTkAddrss,
             n_value: nullable AValue
     )
@@ -939,10 +939,10 @@ redef class AAddrssData
         v.enter_visit(_n_value)
     end
 end
-redef class AEquateData
+redef class AEquateDirective
     private init empty_init do end
 
-    init init_aequatedata (
+    init init_aequatedirective (
             n_tk_equate: nullable TTkEquate,
             n_value: nullable AValue
     )
@@ -984,10 +984,10 @@ redef class AEquateData
         v.enter_visit(_n_value)
     end
 end
-redef class ABurnData
+redef class ABurnDirective
     private init empty_init do end
 
-    init init_aburndata (
+    init init_aburndirective (
             n_tk_burn: nullable TTkBurn,
             n_value: nullable AValue
     )
