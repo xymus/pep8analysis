@@ -1,27 +1,40 @@
 module pep8analysis
 
-import parser
-import opts
+import backbone
+import ast
 
-var opts = new OptionContext
-opts.parse(args)
+redef class AnalysisManager
 
-var files = opts.rest
+	fun run
+	do
+		opts.parse(args)
+		var files = opts.rest
 
-if files.length > 0 then
-	var filename = files.first
-	var file = new IFStream.open( filename )
+		if files.length == 0 then
+			opts.usage
+			return
+		end
 
-	var source = new SourceFile(filename, file)
-	var lexer = new Lexer(source)
-	var parser = new Parser(lexer)
-	var node_tree = parser.parse
-	if node_tree.n_base == null then
-		var err = node_tree.n_eof
-		assert err isa AError
-		print "error at {err.location}: {err.message}"
+		# Parsing
+		var filename = files.first
+		var node_program = build_ast( filename )
+		assert node_program != null
+
+		# Build program model
+		#build_model
+
+		# Create CFG
+		# build_cfg
+
+		# Run analysis
+
+		## dead code
+
+		## type
+
+		## duplications
 	end
-
-	var node_module = node_tree.n_base
-	assert node_module != null
 end
+
+var manager = new AnalysisManager
+manager.run
