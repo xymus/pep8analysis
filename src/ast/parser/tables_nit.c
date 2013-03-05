@@ -648,14 +648,22 @@ static int parser_action_row5[] = {
 	17, 0, 23
 };
 static int parser_action_row6[] = {
-	2,
+	6,
 	-1, 3, 5,
-	1, 0, 26
+	1, 0, 19,
+	3, 0, 20,
+	4, 0, 21,
+	5, 0, 22,
+	17, 0, 23
 };
 static int parser_action_row7[] = {
-	2,
+	6,
 	-1, 3, 6,
-	4, 0, 27
+	1, 0, 19,
+	3, 0, 20,
+	4, 0, 21,
+	5, 0, 22,
+	17, 0, 23
 };
 static int parser_action_row8[] = {
 	6,
@@ -1008,10 +1016,12 @@ static int parser_goto_row5[] = {
 	-1, 32
 };
 static int parser_goto_row6[] = {
-	6,
+	8,
 	-1, 33,
 	3, 24,
 	4, 25,
+	5, 26,
+	6, 27,
 	7, 28,
 	8, 29,
 	9, 30

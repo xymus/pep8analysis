@@ -663,11 +663,11 @@ private class ReduceAction16
 					var nodearraylist1 = p.pop
 					var tidnode2 = nodearraylist1
 					assert tidnode2 isa nullable TId
-					var paccessnode3 = nodearraylist2
-					assert paccessnode3 isa nullable AAccess
+					var poperandnode3 = nodearraylist2
+					assert poperandnode3 isa nullable AOperand
 					var pinstructionnode1: nullable ABinaryInstruction = new ABinaryInstruction.init_abinaryinstruction(
 						tidnode2,
-						paccessnode3
+						poperandnode3
 					)
 					node_list = pinstructionnode1
 					p.push(p.go_to(_goto), node_list)
@@ -681,10 +681,10 @@ private class ReduceAction17
 					var nodearraylist1 = p.pop
 					var pvaluenode2 = nodearraylist1
 					assert pvaluenode2 isa nullable AValue
-					var paccessnode1: nullable AImmediateAccess = new AImmediateAccess.init_aimmediateaccess(
+					var poperandnode1: nullable AImmediateOperand = new AImmediateOperand.init_aimmediateoperand(
 						pvaluenode2
 					)
-					node_list = paccessnode1
+					node_list = poperandnode1
 					p.push(p.go_to(_goto), node_list)
 	end
 end
@@ -702,12 +702,12 @@ private class ReduceAction18
 					assert tcommanode3 isa nullable TComma
 					var tidnode4 = nodearraylist3
 					assert tidnode4 isa nullable TId
-					var paccessnode1: nullable AAnyAccess = new AAnyAccess.init_aanyaccess(
+					var poperandnode1: nullable AAnyOperand = new AAnyOperand.init_aanyoperand(
 						pvaluenode2,
 						tcommanode3,
 						tidnode4
 					)
-					node_list = paccessnode1
+					node_list = poperandnode1
 					p.push(p.go_to(_goto), node_list)
 	end
 end
@@ -833,11 +833,11 @@ private class ReduceAction26
 					var nodearraylist1 = p.pop
 					var ttkblocknode2 = nodearraylist1
 					assert ttkblocknode2 isa nullable TTkBlock
-					var tnumbernode3 = nodearraylist2
-					assert tnumbernode3 isa nullable TNumber
+					var pvaluenode3 = nodearraylist2
+					assert pvaluenode3 isa nullable AValue
 					var pdirectivenode1: nullable ABlockDirective = new ABlockDirective.init_ablockdirective(
 						ttkblocknode2,
-						tnumbernode3
+						pvaluenode3
 					)
 					node_list = pdirectivenode1
 					p.push(p.go_to(_goto), node_list)
@@ -852,11 +852,11 @@ private class ReduceAction27
 					var nodearraylist1 = p.pop
 					var ttkasciinode2 = nodearraylist1
 					assert ttkasciinode2 isa nullable TTkAscii
-					var tstringnode3 = nodearraylist2
-					assert tstringnode3 isa nullable TString
+					var pvaluenode3 = nodearraylist2
+					assert pvaluenode3 isa nullable AValue
 					var pdirectivenode1: nullable AAsciiDirective = new AAsciiDirective.init_aasciidirective(
 						ttkasciinode2,
-						tstringnode3
+						pvaluenode3
 					)
 					node_list = pdirectivenode1
 					p.push(p.go_to(_goto), node_list)

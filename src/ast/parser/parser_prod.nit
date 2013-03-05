@@ -429,14 +429,14 @@ redef class ABinaryInstruction
 
     init init_abinaryinstruction (
             n_id: nullable TId,
-            n_access: nullable AAccess
+            n_operand: nullable AOperand
     )
     do
         empty_init
         _n_id = n_id.as(not null)
 	n_id.parent = self
-        _n_access = n_access.as(not null)
-	n_access.parent = self
+        _n_operand = n_operand.as(not null)
+	n_operand.parent = self
     end
 
     redef fun replace_child(old_child: ANode, new_child: nullable ANode)
@@ -451,11 +451,11 @@ redef class ABinaryInstruction
             end
             return
 	end
-        if _n_access == old_child then
+        if _n_operand == old_child then
             if new_child != null then
                 new_child.parent = self
-		assert new_child isa AAccess
-                _n_access = new_child
+		assert new_child isa AOperand
+                _n_operand = new_child
 	    else
 		abort
             end
@@ -466,13 +466,13 @@ redef class ABinaryInstruction
     redef fun visit_all(v: Visitor)
     do
         v.enter_visit(_n_id)
-        v.enter_visit(_n_access)
+        v.enter_visit(_n_operand)
     end
 end
-redef class AImmediateAccess
+redef class AImmediateOperand
     private init empty_init do end
 
-    init init_aimmediateaccess (
+    init init_aimmediateoperand (
             n_value: nullable AValue
     )
     do
@@ -500,10 +500,10 @@ redef class AImmediateAccess
         v.enter_visit(_n_value)
     end
 end
-redef class AAnyAccess
+redef class AAnyOperand
     private init empty_init do end
 
-    init init_aanyaccess (
+    init init_aanyoperand (
             n_value: nullable AValue,
             n_comma: nullable TComma,
             n_id: nullable TId
@@ -809,14 +809,14 @@ redef class ABlockDirective
 
     init init_ablockdirective (
             n_tk_block: nullable TTkBlock,
-            n_number: nullable TNumber
+            n_value: nullable AValue
     )
     do
         empty_init
         _n_tk_block = n_tk_block.as(not null)
 	n_tk_block.parent = self
-        _n_number = n_number.as(not null)
-	n_number.parent = self
+        _n_value = n_value.as(not null)
+	n_value.parent = self
     end
 
     redef fun replace_child(old_child: ANode, new_child: nullable ANode)
@@ -831,11 +831,11 @@ redef class ABlockDirective
             end
             return
 	end
-        if _n_number == old_child then
+        if _n_value == old_child then
             if new_child != null then
                 new_child.parent = self
-		assert new_child isa TNumber
-                _n_number = new_child
+		assert new_child isa AValue
+                _n_value = new_child
 	    else
 		abort
             end
@@ -846,7 +846,7 @@ redef class ABlockDirective
     redef fun visit_all(v: Visitor)
     do
         v.enter_visit(_n_tk_block)
-        v.enter_visit(_n_number)
+        v.enter_visit(_n_value)
     end
 end
 redef class AAsciiDirective
@@ -854,14 +854,14 @@ redef class AAsciiDirective
 
     init init_aasciidirective (
             n_tk_ascii: nullable TTkAscii,
-            n_string: nullable TString
+            n_value: nullable AValue
     )
     do
         empty_init
         _n_tk_ascii = n_tk_ascii.as(not null)
 	n_tk_ascii.parent = self
-        _n_string = n_string.as(not null)
-	n_string.parent = self
+        _n_value = n_value.as(not null)
+	n_value.parent = self
     end
 
     redef fun replace_child(old_child: ANode, new_child: nullable ANode)
@@ -876,11 +876,11 @@ redef class AAsciiDirective
             end
             return
 	end
-        if _n_string == old_child then
+        if _n_value == old_child then
             if new_child != null then
                 new_child.parent = self
-		assert new_child isa TString
-                _n_string = new_child
+		assert new_child isa AValue
+                _n_value = new_child
 	    else
 		abort
             end
@@ -891,7 +891,7 @@ redef class AAsciiDirective
     redef fun visit_all(v: Visitor)
     do
         v.enter_visit(_n_tk_ascii)
-        v.enter_visit(_n_string)
+        v.enter_visit(_n_value)
     end
 end
 redef class AAddrssDirective

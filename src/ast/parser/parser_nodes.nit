@@ -81,11 +81,11 @@ class TId
 end
 class EOF
 	super Token
-private init noinit do end
+	#private init noinit do end
 end
 class AError
 	super EOF
-private init noinit do end
+	#private init noinit do end
 end
 
 class ALine
@@ -96,7 +96,10 @@ class AInstruction
 	super Prod
     readable writable var _n_id: TId
 end
-class AAccess super Prod end
+class AOperand
+	super Prod
+    readable var _n_value: AValue
+end
 class AValue super Prod end
 class ADirective super Prod end
 
@@ -110,15 +113,17 @@ class AEmptyLine
 	super ALine
     readable var _n_eol: TEol
 end
-class AInstructionLine
+abstract class ANonEmptyLine
 	super ALine
     readable var _n_label_decl: nullable ALabelDecl = null
+end
+class AInstructionLine
+	super ANonEmptyLine
     readable var _n_instruction: AInstruction
     readable var _n_eol: TEol
 end
 class ADirectiveLine
-	super ALine
-    readable var _n_label_decl: nullable ALabelDecl = null
+	super ANonEmptyLine
     readable var _n_directive: ADirective
     readable var _n_eol: TEol
 end
@@ -132,15 +137,13 @@ class AUnaryInstruction
 end
 class ABinaryInstruction
 	super AInstruction
-    readable writable var _n_access: AAccess
+    readable var _n_operand: AOperand
 end
-class AImmediateAccess
-	super AAccess
-    readable var _n_value: AValue
+class AImmediateOperand
+	super AOperand
 end
-class AAnyAccess
-	super AAccess
-    readable var _n_value: AValue
+class AAnyOperand
+	super AOperand
     readable var _n_comma: TComma
     readable var _n_id: TId
 end
@@ -177,12 +180,12 @@ end
 class ABlockDirective
 	super ADirective
     readable var _n_tk_block: TTkBlock
-    readable var _n_number: TNumber
+    readable var _n_value: AValue
 end
 class AAsciiDirective
 	super ADirective
     readable var _n_tk_ascii: TTkAscii
-    readable var _n_string: TString
+    readable var _n_value: AValue
 end
 class AAddrssDirective
 	super ADirective
@@ -204,12 +207,10 @@ class Start
 	super Prod
     readable var _n_base: nullable AListing
     readable var _n_eof: EOF
-    init(
-        n_base: nullable AListing,
-        n_eof: EOF)
-    do
-        _n_base = n_base
-        _n_eof = n_eof
-    end
-
+	init(n_base: nullable AListing, n_eof: EOF)
+	do
+		super(null)
+		_n_base = n_base
+		_n_eof = n_eof
+	end
 end

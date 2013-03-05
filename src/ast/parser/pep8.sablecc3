@@ -101,12 +101,12 @@ label_decl = id colon;
 
 instruction
 	= {unary} id
-	| {binary} id access;
+	| {binary} id operand;
 
-/* accesses
- * We will manage which access are possible with each stmt at a higher level.
+/* operands
+ * We will manage which operands are possible with each stmt at a higher level.
  * This will allow better error messages and a cleaner model. */
-access
+operand
 	= {immediate} value
 	| {any} value comma id;
 
@@ -119,8 +119,8 @@ value
 directive
 	= {byte} tk_byte value
 	| {word} tk_word value
-	| {block} tk_block number
-	| {ascii} tk_ascii string
+	| {block} tk_block value
+	| {ascii} tk_ascii value
 	| {addrss} tk_addrss value
 	| {equate} tk_equate value
 	| {burn} tk_burn value;

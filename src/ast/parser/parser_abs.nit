@@ -90,7 +90,7 @@ class AListing super Prod end
 class ALine super Prod end
 class ALabelDecl super Prod end
 class AInstruction super Prod end
-class AAccess super Prod end
+class AOperand super Prod end
 class AValue super Prod end
 class ADirective super Prod end
 
@@ -131,14 +131,14 @@ end
 class ABinaryInstruction
 	super AInstruction
     readable var _n_id: TId
-    readable var _n_access: AAccess
+    readable var _n_operand: AOperand
 end
-class AImmediateAccess
-	super AAccess
+class AImmediateOperand
+	super AOperand
     readable var _n_value: AValue
 end
-class AAnyAccess
-	super AAccess
+class AAnyOperand
+	super AOperand
     readable var _n_value: AValue
     readable var _n_comma: TComma
     readable var _n_id: TId
@@ -176,12 +176,12 @@ end
 class ABlockDirective
 	super ADirective
     readable var _n_tk_block: TTkBlock
-    readable var _n_number: TNumber
+    readable var _n_value: AValue
 end
 class AAsciiDirective
 	super ADirective
     readable var _n_tk_ascii: TTkAscii
-    readable var _n_string: TString
+    readable var _n_value: AValue
 end
 class AAddrssDirective
 	super ADirective
