@@ -1,6 +1,6 @@
-# Pep/8 Analyzer
+# Pep/8 Analysis
 
-This project provides tools to analyse staticly Pep/8 programs.
+This project provides tools to statically analyze Pep/8 programs in order to detect bugs or bad programming practices.
 
 # Installation
 
@@ -12,4 +12,4 @@ Clone the source from http://github.com/xymus/pep8analyzer.git and compile with 
 
 For basic results, execute on the Pep/8 program prog.pep with `bin/pep8analyzer prog.pep`.
 
-Call `bin/pep8analyer --help` to see the available (and up to date) options.
+Call `bin/pep8analyer --help` for a description of the available (and up to date) options.
