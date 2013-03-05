@@ -3,6 +3,7 @@ module pep8analysis
 import backbone
 import ast
 import model
+import cfg
 
 redef class AnalysisManager
 	var opt_help = new OptionBool("Display this help message", "--help","-h")
@@ -42,7 +43,7 @@ redef class AnalysisManager
 		var model = build_model(ast)
 
 		# Create CFG
-		# build_cfg
+		var cfg = build_cfg(model)
 
 		# Run analysis
 

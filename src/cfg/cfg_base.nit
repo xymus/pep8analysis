@@ -1,0 +1,332 @@
+import pipeline
+
+import model
+
+redef class AnalysisManager
+	fun build_cfg( model: Model ) : CFG
+	do
+		var cfg = new CFG( model )
+		return cfg
+	end
+end
+
+class CFG
+	var start : BasicBlock
+	var finish : BasicBlock
+	var addr_to_blocks = new HashMap[Int,BasicBlock]
+	var blocks = new Array[BasicBlock]
+
+	init (model: Model)
+	do
+		var starts = [0]
+		var ends = new Array[Int]
+
+		# detect basic block limits
+		for line in model.lines do
+				if line isa AInstructionLine then
+					var instr = line.n_instruction
+					if instr isa ABranchInstruction then
+						var op = instr.n_operand
+						var dest = op.n_value.to_i
+						starts.add(dest)
+						ends.add(line.address)
+						if not instr isa ABrInstruction then
+							# next line is possible start
+							starts.add(line.address+4)
+						end
+					else if instr isa AStopInstruction or
+					  instr isa ARetInstruction then
+						ends.add(line.address)
+					end
+				end
+		end
+
+		# sort breakpoints in order
+		starts = starts.uniq.sort_filter.to_a
+		ends = ends.uniq.sort_filter.to_a
+
+		# create basic blocks
+		var current_block: nullable BasicBlock = null
+		var next_start_i = 0
+		var next_end_i = 0
+		for line in model.lines do
+			var addr = line.address
+			while next_start_i < starts.length and
+			  starts[next_start_i] < addr do next_start_i += 1
+			if next_start_i < starts.length and
+			  starts[next_start_i] == addr then
+				# is a dest, and not already started
+				current_block = new BasicBlock
+				blocks.add(current_block)
+			end
+
+			if current_block == null then
+				current_block = new BasicBlock
+				blocks.add(current_block)
+			end
+
+			current_block.lines.add(line)
+
+			while next_end_i < ends.length and
+			  ends[next_end_i] < addr do next_end_i += 1
+			if next_end_i < ends.length and
+			  ends[next_end_i] == addr then
+				# stops here, unless already at the end
+				current_block = null
+			end
+		end
+
+		# adds created blocks to instance attribute
+		for b in blocks do
+			# save them in the class attribute
+			addr_to_blocks[b.lines.first.address] = b
+		end
+
+		# start node
+		start = new BasicBlock.start
+		blocks.add(start)
+		if blocks.length > 0 and blocks.first != start then
+			start.successors.add(blocks.first)
+			blocks.first.predecessors.add(start)
+		end
+		addr_to_blocks[-2] = start
+
+		# end node
+		finish = new BasicBlock.finish
+		blocks.add(finish)
+		addr_to_blocks[-1] = finish
+
+		# set successors and predecessors
+		for b in blocks do if not b.lines.is_empty then
+			var line = b.lines.last
+
+			if line isa AInstructionLine then
+				var instr = line.n_instruction
+				if instr isa ABranchInstruction then
+					var op = instr.n_operand
+					var dest = op.n_value.to_i
+					var db = addr_to_blocks[dest]
+					b.successors.add(db)
+					db.predecessors.add(b)
+				end
+
+				if not instr isa ABrInstruction and
+				  not instr isa AStopInstruction and
+				  not instr isa ACallInstruction and
+				  not instr isa ARetInstruction then
+					# next line is possible start
+					var dest = line.address+4
+					if addr_to_blocks.has_key(dest) then
+						var db = addr_to_blocks[dest]
+						b.successors.add(db)
+						db.predecessors.add(b)
+					else
+						print "error: invalid block after {line}"
+					end
+				end
+
+				if instr isa ACallInstruction then
+					var next_addr = line.address+4
+					if not addr_to_blocks.has_key(next_addr) then
+						print "error, no instruction following call {b.name}"
+					else
+						b.after_call = addr_to_blocks[next_addr]
+					end
+				end
+
+				if b.successors.is_empty and
+				  not instr isa ARetInstruction then
+					b.successors.add(finish)
+					finish.predecessors.add(b)
+				end
+			end
+		end
+
+		# Verify use of function calls
+		# To be by the book, each path from the start to the end should have
+		# the same number of calls and rets. There should never be more rets
+		# than calls.
+
+		# TODO check for instructions not in a path from start to end
+
+		# TODO check if branching on variable
+
+		# TODO check there is there is a consistant use of the stack between
+		# calls and rets.
+	end
+
+	# duplicate function calls
+	# at each call site, the tree representing the
+	fun inline_functions
+	do
+		inline_functions_recursive(start)
+
+		# retain only blocks reachble from start
+		var reachables = new HashSet[BasicBlock]
+		var todo = new Array[BasicBlock]
+		todo.add(start)
+		while not todo.is_empty do
+			var n = todo.pop
+			if not reachables.has(n) then
+				reachables.add(n)
+				for s in n.successors do if not reachables.has(s) then
+					todo.add(s)
+				end
+			end
+		end
+		self.blocks = reachables.to_a
+	end
+
+	private fun inline_functions_recursive(b: BasicBlock)
+	do
+
+		if not b.lines.is_empty then
+			var line = b.lines.last
+			if line isa AInstructionLine then
+				var instr = line.n_instruction
+				if instr isa ACallInstruction then
+					# replace called by a dup
+					assert b.successors.length == 1
+					var called = b.successors.first
+					var rets = new HashSet[BasicBlock]
+					var n = called.duplicate_tree(
+						new HashMap[BasicBlock,BasicBlock], rets, 0, blocks)
+					b.successors[0] = n
+					n.predecessors.add(b)
+					assert n.predecessors.length == 1
+					assert b.successors.length == 1
+					# TODO add information about duplicated block that are not dead
+
+					# link!
+					var next = b.after_call.as(not null)
+					# Another protection against cycles
+					for ret in rets do
+						ret.successors.add(next)
+						next.predecessors.add(ret)
+					end
+					print "linking {b.name} to {next.name} ret len {rets.length}"
+
+					b.after_call = null
+				end
+			end
+		end
+
+		var si = 0
+		while si < b.successors.length do
+			var s = b.successors[si]
+			inline_functions_recursive(s)
+			si+=1
+		end
+	end
+
+	fun link_ret_to_calls(b: BasicBlock, to_link_ori: List[BasicBlock])
+	do
+		# copy to_list
+		var to_link = new List[BasicBlock]
+		to_link.add_all(to_link_ori)
+
+		if not b.lines.is_empty then
+			var line = b.lines.last
+			if line isa AInstructionLine then
+				var instr = line.n_instruction
+				if instr isa ACallInstruction then
+					to_link.push(b)
+
+					# Protection against cycles
+					if to_link.length > 10 then return
+				else if instr isa ARetInstruction then
+						if to_link.is_empty then
+							print "error, no call found for ret {line}"
+						else
+							var caller = to_link.pop
+							# link!
+							var next = caller.after_call.as(not null)
+
+							# Another protection against cycles
+							if b.successors.has(next) then return
+
+							b.successors.add(next)
+							next.predecessors.add(b)
+						end
+				end
+			end
+		end
+
+		var si = 0
+		while si < b.successors.length do
+			var s = b.successors[si]
+			link_ret_to_calls(s, to_link)
+			si+=1
+		end
+	end
+end
+
+class BasicBlock
+	var name : String
+	var lines = new Array[ANonEmptyLine]
+	var successors = new Array[BasicBlock]
+	var predecessors = new Array[BasicBlock]
+	var after_call : nullable BasicBlock = null
+
+	init
+	do
+		var count = (once new Counter).next
+		name = "b{count}"
+	end
+	init named(name: String) do self.name = name
+	init start do name = "start"
+	init finish
+	do
+		name = "end"
+	end
+
+	fun duplicate_tree(dups: HashMap[BasicBlock,BasicBlock],
+					   rets: Set[BasicBlock], calls: Int,
+					   blocks: Array[BasicBlock]) : BasicBlock
+	do
+		print "dup"
+		if dups.has_key(self) then return dups[self]
+		print "duping"
+
+		var n = new BasicBlock.from(self)
+		dups[self] = n
+		blocks.add(n)
+		n.successors = new Array[BasicBlock]
+		n.predecessors = new Array[BasicBlock]
+
+		if after_call != null then
+			var nac = after_call.duplicate_tree(dups, rets, calls, blocks)
+			n.after_call = nac
+			calls += 1 # for within that call
+		end
+
+		for s in successors do
+			var ns = s.duplicate_tree(dups, rets, calls, blocks)
+			n.successors.add(ns)
+			ns.predecessors.add(n)
+		end
+
+		if calls == 0 and successors.is_empty then rets.add(n)
+
+		return n
+	end
+
+	init from(o: BasicBlock)
+	do
+		var count = (once new Counter).next
+		name = "c{count}_from_{o.name}"
+		lines = o.lines
+		successors = o.successors
+		predecessors = o.predecessors
+		after_call = o.after_call
+	end
+end
+
+private class Counter
+	var count: Int = -1
+	fun next : Int
+	do
+		count += 1
+		return count
+	end
+end
