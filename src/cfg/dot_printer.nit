@@ -20,18 +20,24 @@ redef class BasicBlock
 	do
 		var lbl
 		if long then
-			var artp = new ASTPrinter
-			for line in lines do
-				artp.enter_visit( line )
-			end
-			var code = artp.str
-			code = code.replace("\n","\\l").replace("\"","\\\"").replace("\\n","\\\\n")
-			lbl = "\"{name}:\\n{code}\""
+			lbl = "\"{name}:\\n{dot_node_text}\""
 		else
 			lbl = name
 		end
 		f.write( "{name} [label={lbl}]\n" )
 	end
+
+	fun dot_node_text : String
+	do
+		var artp = new ASTPrinter
+		for line in lines do
+			artp.enter_visit( line )
+		end
+		var code = artp.str
+		code = code.replace("\n","\\l").replace("\"","\\\"").replace("\\n","\\\\n")
+		return code
+	end
+
 	fun print_dot_edges( f: OFStream, long: Bool )
 	do
 		for s in successors do
