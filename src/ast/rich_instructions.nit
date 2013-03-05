@@ -13,12 +13,18 @@ intrude import parser
 import ast_base
 
 redef class AnalysisManager
-	fun enrich_ast( ast : AListing ) do
-		for line in ast.n_lines do
-			if line isa AInstructionLine then
-				line.enrich
+	redef fun build_ast(filename)
+	do
+		var ast = super
+		if ast != null then
+		#fun enrich_ast( ast : AListing ) do
+			for line in ast.n_lines do
+				if line isa AInstructionLine then
+					line.enrich
+				end
 			end
 		end
+		return ast
 	end
 end
 
@@ -138,7 +144,7 @@ abstract class ARichBinaryInstruction
 	#redef var n_id : TId
 
 	init from( src: ABinaryInstruction ) do
-		_n_access = src.n_access
+		_n_operand = src.n_operand
 		_n_id = src.n_id
 		location = src.location
 		parent = src.parent
