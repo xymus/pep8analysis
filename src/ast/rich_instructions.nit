@@ -10,6 +10,7 @@ module rich_instructions
 
 import backbone
 intrude import parser
+import ast_base
 
 redef class AnalysisManager
 	fun enrich_ast( ast : AListing ) do
