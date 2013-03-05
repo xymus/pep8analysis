@@ -1,0 +1,5 @@
+doc/
+.nit_compile/
+tests/students/
+bin/
+.*
