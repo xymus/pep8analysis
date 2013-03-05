@@ -204,7 +204,7 @@ class CFG
 						ret.successors.add(next)
 						next.predecessors.add(ret)
 					end
-					print "linking {b.name} to {next.name} ret len {rets.length}"
+					#print "linking {b.name} to {next.name} ret len {rets.length}"
 
 					b.after_call = null
 				end
@@ -284,9 +284,7 @@ class BasicBlock
 					   rets: Set[BasicBlock], calls: Int,
 					   blocks: Array[BasicBlock]) : BasicBlock
 	do
-		print "dup"
 		if dups.has_key(self) then return dups[self]
-		print "duping"
 
 		var n = new BasicBlock.from(self)
 		dups[self] = n
