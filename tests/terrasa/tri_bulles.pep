@@ -12,11 +12,11 @@
          SUBA    2, i        ; A --
          STA     maxlen, d   ; maxlen = A
 
-; saisie du tableau 
+; saisie du tableau
          LDX     0, i        ; X = 0
 saisie:  DECI    tab, x      ; do { tab[X] = getInt()
          ADDX    2, i        ;    X++
-         CPX     len, i     
+         CPX     len, i
          BRLT    saisie      ; } while (X < len)
 
 ; trie du tableau
@@ -38,7 +38,7 @@ loop:    LDA     tab, x      ;        A = tab[X]
          STA     tab, x      ;            tab[x] = A
          ADDX    2, i        ;            X ++
          LDA     tmp, d      ;            A = tmp
-         STA     tab, x      ;            tab[x] = A         
+         STA     tab, x      ;            tab[x] = A
                              ;            // passer flag à 0
          LDA     0, i        ;            A = 0
          STA     flag, d     ;            flag = A
@@ -48,22 +48,19 @@ next:    CPX     maxlen, d
          BRLT    loop        ;    } while(X < maxlen)
 
          LDA     flag, d     ;    A = flag
-         CPA     0, i        
+         CPA     0, i
          BREQ    trie        ; } while(flag == 0)
-
 
 ; affichage le tableau
          LDX     0, i        ; X = 0
 aff:     DECO    tab, x      ; do { print (tab[X])
          ADDX    2, i        ;    X++
-         CPX     len, i     
+         CPX     len, i
          BRLT    aff         ; } while (X < len)
-
 
          STOP
 
-
-tab:     .BLOCK  10          ; #2d5a tableau d'entiers 
+tab:     .BLOCK  10          ; #2d5a tableau d'entiers
 len:     .EQUATE 10          ; taille du tableau
 maxlen:  .BLOCK  2           ; #2d case max - 1
 flag:    .BLOCK  2           ; #2d flag 'aucun_echange'
