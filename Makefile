@@ -1,6 +1,6 @@
 bin/pep8analysis:
 	mkdir -p bin
-	nitc -o bin/pep8analysis src/pep8analysis.nit
+	nitg -o bin/pep8analysis -I lib src/pep8analysis.nit
 
 doc/index.html:
 	nitdoc src/pep8analysis.nit
