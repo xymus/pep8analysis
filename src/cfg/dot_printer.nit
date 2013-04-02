@@ -34,7 +34,8 @@ redef class BasicBlock
 			artp.enter_visit( line )
 		end
 		var code = artp.str
-		code = code.replace("\n","\\l").replace("\"","\\\"").replace("\\n","\\\\n")
+		code = code.replace("\n","\\l").replace("\"","\\\"").replace("\\n","|n")
+		# the last one is a hack
 		return code
 	end
 
