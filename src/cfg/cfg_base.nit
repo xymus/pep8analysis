@@ -159,7 +159,7 @@ class CFG
 	# at each call site, the tree representing the
 	fun inline_functions
 	do
-		inline_functions_recursive(start)
+		inline_functions_recursive(start,0)
 
 		# retain only blocks reachble from start
 		var reachables = new HashSet[BasicBlock]
@@ -177,8 +177,10 @@ class CFG
 		self.blocks = reachables.to_a
 	end
 
-	private fun inline_functions_recursive(b: BasicBlock)
+	private fun inline_functions_recursive(b: BasicBlock, depth: Int)
 	do
+		# Protection against cycles
+		if depth > 1000 then return
 
 		if not b.lines.is_empty then
 			var line = b.lines.last
@@ -214,7 +216,7 @@ class CFG
 		var si = 0
 		while si < b.successors.length do
 			var s = b.successors[si]
-			inline_functions_recursive(s)
+			inline_functions_recursive(s, depth+1)
 			si+=1
 		end
 	end
