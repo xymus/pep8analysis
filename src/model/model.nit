@@ -3,6 +3,7 @@ import ast
 
 import directives
 import operands
+import vars
 
 redef class AnalysisManager
 	fun build_model(ast: AListing): Model
