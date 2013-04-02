@@ -4,6 +4,7 @@ import backbone
 import ast
 import model
 import cfg
+import flow_analysis
 
 redef class AnalysisManager
 	var opt_help = new OptionBool("Display this help message", "--help","-h")
@@ -46,6 +47,12 @@ redef class AnalysisManager
 		var cfg = build_cfg(model)
 
 		# Run analysis
+
+		## Range
+		var range_analysis = new RangeAnalysis
+		range_analysis.analyze(cfg)
+		var of = new OFStream.open("range.dot")
+		cfg.print_dot(of, true)
 
 		## dead code
 
