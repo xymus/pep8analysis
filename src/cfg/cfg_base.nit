@@ -219,8 +219,11 @@ class CFG
 		end
 	end
 
-	fun link_ret_to_calls(b: BasicBlock, to_link_ori: List[BasicBlock])
+	fun link_ret_to_calls(b: BasicBlock, to_link_ori: List[BasicBlock], depth: Int)
 	do
+		# Protection against cycles
+		if depth > 1000 then return
+
 		# copy to_list
 		var to_link = new List[BasicBlock]
 		to_link.add_all(to_link_ori)
@@ -232,8 +235,6 @@ class CFG
 				if instr isa ACallInstruction then
 					to_link.push(b)
 
-					# Protection against cycles
-					if to_link.length > 10 then return
 				else if instr isa ARetInstruction then
 						if to_link.is_empty then
 							print "error, no call found for ret {line}"
@@ -255,7 +256,7 @@ class CFG
 		var si = 0
 		while si < b.successors.length do
 			var s = b.successors[si]
-			link_ret_to_calls(s, to_link)
+			link_ret_to_calls(s, to_link,depth+1)
 			si+=1
 		end
 	end

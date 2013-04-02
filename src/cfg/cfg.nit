@@ -25,7 +25,7 @@ redef class AnalysisManager
 			cfg.inline_functions
 		else
 			var to_link = new List[BasicBlock]
-			cfg.link_ret_to_calls(cfg.start, to_link)
+			cfg.link_ret_to_calls(cfg.start, to_link, 0)
 		end
 
 		if opt_cfg.value or opt_cfg_long.value then
