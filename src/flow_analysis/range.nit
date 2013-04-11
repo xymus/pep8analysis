@@ -4,8 +4,6 @@ import framework
 
 class RangeAnalysis
 	super FlowAnalysis[RangeMap]
-	#super FlowAnalysis[RangeMap]
-	#super FlowAnalysis[HashSet[Couple[String,ALine]]]
 
 	var current_range: nullable ValRange = null
 
@@ -14,7 +12,7 @@ class RangeAnalysis
 	redef fun visit(node)
 	do
 		node.accept_range_analysis(self,
-			current_in.as(not null), current_out.as(not null))
+			current_in, current_out)
 	end
 	redef fun merge(a, b)
 	do
@@ -38,8 +36,8 @@ class RangeAnalysis
 		return n
 	end
 
-	redef fun get_in(bb) do return bb.ranges_in
-	redef fun get_out(bb) do return bb.ranges_out
+	redef fun get_in(bb) do return bb.ranges_in or else new RangeMap
+	redef fun get_out(bb) do return bb.ranges_out or else new RangeMap
 	redef fun set_in(bb, s) do bb.ranges_in = s
 	redef fun set_out(bb, s) do bb.ranges_out = s
 
@@ -50,12 +48,17 @@ redef class BasicBlock
 	var ranges_in: nullable RangeMap = null
 	var ranges_out: nullable RangeMap = null
 
-	redef fun dot_node_text
+	redef fun dot_node_header
 	do
-		var s = super
-		if ranges_in != null then s = "ranges in = \{{ranges_in.join(", ", ":")}\}\\n{s}"
-		if ranges_out != null then s = "{s}\\lranges out = \{{ranges_in.join(", ", ":")}\}"
-		return s
+		if ranges_in != null then
+			return "{super}-- ranges in = \{{ranges_in.join(", ", ":")}\}\\l"
+		else return super
+	end
+	redef fun dot_node_footer
+	do
+		if ranges_out != null then
+			return "{super}-- ranges out = \{{ranges_out.join(", ", ":")}\}\\l"
+		else return super
 	end
 end
 
@@ -77,7 +80,7 @@ class ValRange
 		min == o.min and max == o.max
 end
 class RangeMap
-	super HashMap[String, ValRange]
+	super HashMap[Var, ValRange]
 	redef fun ==(o)
 	do
 		if o == null or not o isa RangeMap then return false
@@ -109,13 +112,18 @@ redef class ALoadInstruction
 		#super
 
 		outs.recover_with(ins)
-		var variable = register.to_s
+		var variable = def_var
+		#var add = new RangeMap[Var, ValRange](variable,
 
 		# kill every set for variable
 		# (is automatic by HashMap)
 
-		# gen (&kill)
-		outs[variable] = v.current_range.as(not null)
+		if variable != null then
+			# gen (&kill)
+			outs[variable] = v.current_range.as(not null)
+		else
+			# TODO top!
+		end
 		v.current_range = null
 	end
 end
