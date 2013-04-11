@@ -2,6 +2,9 @@ module range
 
 import framework
 
+# for linex, and should be used in the future
+import reaching_defs
+
 class RangeAnalysis
 	super FlowAnalysis[RangeMap]
 
