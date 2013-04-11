@@ -4,8 +4,8 @@ import advanced_collections
 class FlowAnalysis[S] # : Collection[Object]]
 	super Visitor
 
-	var current_in: nullable S = null
-	var current_out: nullable S = null
+	var current_in: S writable = default_in_set
+	var current_out: S writable = default_in_set
 
 	fun get_in(bb: BasicBlock): nullable S is abstract
 	fun get_out(bb: BasicBlock): nullable S is abstract
@@ -56,7 +56,7 @@ class FlowAnalysis[S] # : Collection[Object]]
 					end
 
 					for line in block.lines do
-						self.current_in = current_in
+						self.current_in = current_in.as(not null)
 						self.current_out = default_in_set # TODO change
 						enter_visit(line)
 						current_out = self.current_out
