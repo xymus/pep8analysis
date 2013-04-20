@@ -39,10 +39,10 @@ class RangeAnalysis
 		return n
 	end
 
-	redef fun get_in(bb) do return bb.ranges_in or else new RangeMap
-	redef fun get_out(bb) do return bb.ranges_out or else new RangeMap
-	redef fun set_in(bb, s) do bb.ranges_in = s
-	redef fun set_out(bb, s) do bb.ranges_out = s
+	redef fun in_set(bb) do return bb.ranges_in or else new RangeMap
+	redef fun out_set(bb) do return bb.ranges_out or else new RangeMap
+	redef fun in_set=(bb, s) do bb.ranges_in = s
+	redef fun out_set=(bb, s) do bb.ranges_out = s
 
 	redef fun default_in_set do return new RangeMap #HashMap[String, ValRange]
 end
