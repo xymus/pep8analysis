@@ -5,7 +5,7 @@ bin/pep8analysis:
 doc/index.html:
 	nitdoc -I lib src/pep8analysis.nit
 
-tests:
-	make -C tests
+tests: bin/pep8analysis
+	bin/pep8analysis --cfg-long tests/privat/*.pep tests/laf/*.pep tests/terrasa/*.pep
 
 .PHONY: bin/pep8analysis tests doc/index.html
