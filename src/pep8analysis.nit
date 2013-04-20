@@ -12,12 +12,15 @@ redef class AnalysisManager
 	fun quiet: Bool do return opt_quiet.value
 	fun verbose: Bool do return not opt_quiet.value
 
+	var opt_output = new OptionString("Output directory", "--output", "-o")
+
 	redef init
 	do
 		super
 
 		opts.add_option(opt_help)
 		opts.add_option(opt_quiet)
+		opts.add_option(opt_output)
 	end
 
 	fun run
@@ -31,6 +34,10 @@ redef class AnalysisManager
 			opts.usage
 			return
 		end
+
+		var dir = opt_output.value
+		if dir == null then dir = "out"
+		if not dir.file_exists then dir.mkdir
 
 		# Parsing
 		var filename = files.first
