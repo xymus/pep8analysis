@@ -58,7 +58,9 @@ class FlowAnalysis[S] # : Collection[Object]]
 					for line in block.lines do
 						self.current_in = current_in.as(not null)
 						self.current_out = default_in_set # TODO change
+						pre_line_visit(line)
 						enter_visit(line)
+						post_line_visit(line)
 						current_out = self.current_out
 						current_in = self.current_out
 						#self.current_in = current_in
@@ -81,4 +83,7 @@ class FlowAnalysis[S] # : Collection[Object]]
 			if changed_blocks.is_empty then break
 		end
 	end
+
+	fun pre_line_visit(l: ALine) do end
+	fun post_line_visit(l: ALine) do end
 end
