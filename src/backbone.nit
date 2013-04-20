@@ -58,10 +58,30 @@ end
 
 class Warn
 	super Note
+	init (line: nullable Location, msg: String)
+	do
+		self.line = line
+		self.msg = msg
+	end
 	redef fun prefix do return "Warning: "
 end
 
 class Error
 	super Note
+	init (line: nullable Location, msg: String)
+	do
+		self.line = line
+		self.msg = msg
+	end
 	redef fun prefix do return "Error:   "
+end
+
+class Fatal
+	super Note
+	init (line: nullable Location, msg: String)
+	do
+		self.line = line
+		self.msg = msg
+	end
+	redef fun prefix do return "Fatal:   "
 end
