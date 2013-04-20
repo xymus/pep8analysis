@@ -1,8 +1,5 @@
 import cfg_base
 
-#redef class AnalysisManager
-		#end
-
 redef class CFG
 	fun print_dot( f: OFStream, long: Bool )
 	do
