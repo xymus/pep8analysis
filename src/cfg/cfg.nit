@@ -1,5 +1,6 @@
 import cfg_base
 import dot_printer
+import sanity
 
 redef class AnalysisManager
 	var opt_cfg = new OptionBool("Print the CFG to \"cfg.dot\" (for debugging purposes)", "--cfg")
@@ -42,6 +43,8 @@ redef class AnalysisManager
 			cfg.print_dot(of, opt_cfg_long.value)
 			of.close
 		end
+
+		verify_cfg_sanity(cfg)
 
 		return cfg
 	end
