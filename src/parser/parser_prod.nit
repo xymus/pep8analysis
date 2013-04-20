@@ -141,11 +141,16 @@ redef class AEmptyLine
     private init empty_init do end
 
     init init_aemptyline (
+            n_label_decl: nullable ALabelDecl,
             n_comment: nullable TComment,
             n_eol: nullable TEol
     )
     do
         empty_init
+        _n_label_decl = n_label_decl
+	if n_label_decl != null then
+		n_label_decl.parent = self
+	end
         _n_comment = n_comment
 	if n_comment != null then
 		n_comment.parent = self
@@ -156,6 +161,16 @@ redef class AEmptyLine
 
     redef fun replace_child(old_child: ANode, new_child: nullable ANode)
     do
+        if _n_label_decl == old_child then
+            if new_child != null then
+                new_child.parent = self
+		assert new_child isa ALabelDecl
+                _n_label_decl = new_child
+	    else
+		_n_label_decl = null
+            end
+            return
+	end
         if _n_comment == old_child then
             if new_child != null then
                 new_child.parent = self
@@ -180,6 +195,9 @@ redef class AEmptyLine
 
     redef fun visit_all(v: Visitor)
     do
+        if _n_label_decl != null then
+            v.enter_visit(_n_label_decl.as(not null))
+        end
         if _n_comment != null then
             v.enter_visit(_n_comment.as(not null))
         end

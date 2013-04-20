@@ -166,25 +166,27 @@ class Parser
 			new ReduceAction11(1),
 			new ReduceAction12(1),
 			new ReduceAction13(1),
-			new ReduceAction14(2),
-			new ReduceAction15(3),
-			new ReduceAction16(3),
-			new ReduceAction17(4),
-			new ReduceAction18(4),
-			new ReduceAction19(5),
-			new ReduceAction20(5),
+			new ReduceAction14(1),
+			new ReduceAction15(1),
+			new ReduceAction16(2),
+			new ReduceAction17(3),
+			new ReduceAction18(3),
+			new ReduceAction19(4),
+			new ReduceAction20(4),
 			new ReduceAction21(5),
 			new ReduceAction22(5),
 			new ReduceAction23(5),
-			new ReduceAction24(6),
-			new ReduceAction25(6),
+			new ReduceAction24(5),
+			new ReduceAction25(5),
 			new ReduceAction26(6),
 			new ReduceAction27(6),
 			new ReduceAction28(6),
 			new ReduceAction29(6),
 			new ReduceAction30(6),
-			new ReduceAction31(7),
-			new ReduceAction32(7)
+			new ReduceAction31(6),
+			new ReduceAction32(6),
+			new ReduceAction33(7),
+			new ReduceAction34(7)
 		)
 	end
 end
@@ -399,11 +401,12 @@ private class ReduceAction4
 	do
 					var node_list: nullable Object = null
 					var nodearraylist1 = p.pop
-					var teolnode3 = nodearraylist1
-					assert teolnode3 isa nullable TEol
+					var teolnode4 = nodearraylist1
+					assert teolnode4 isa nullable TEol
 					var plinenode1: nullable AEmptyLine = new AEmptyLine.init_aemptyline(
 						null,
-						teolnode3
+						null,
+						teolnode4
 					)
 					node_list = plinenode1
 					p.push(p.go_to(_goto), node_list)
@@ -416,13 +419,14 @@ private class ReduceAction5
 					var node_list: nullable Object = null
 					var nodearraylist2 = p.pop
 					var nodearraylist1 = p.pop
-					var tcommentnode2 = nodearraylist1
-					assert tcommentnode2 isa nullable TComment
-					var teolnode3 = nodearraylist2
-					assert teolnode3 isa nullable TEol
+					var plabeldeclnode2 = nodearraylist1
+					assert plabeldeclnode2 isa nullable ALabelDecl
+					var teolnode4 = nodearraylist2
+					assert teolnode4 isa nullable TEol
 					var plinenode1: nullable AEmptyLine = new AEmptyLine.init_aemptyline(
-						tcommentnode2,
-						teolnode3
+						plabeldeclnode2,
+						null,
+						teolnode4
 					)
 					node_list = plinenode1
 					p.push(p.go_to(_goto), node_list)
@@ -435,15 +439,14 @@ private class ReduceAction6
 					var node_list: nullable Object = null
 					var nodearraylist2 = p.pop
 					var nodearraylist1 = p.pop
-					var pinstructionnode3 = nodearraylist1
-					assert pinstructionnode3 isa nullable AInstruction
-					var teolnode5 = nodearraylist2
-					assert teolnode5 isa nullable TEol
-					var plinenode1: nullable AInstructionLine = new AInstructionLine.init_ainstructionline(
+					var tcommentnode3 = nodearraylist1
+					assert tcommentnode3 isa nullable TComment
+					var teolnode4 = nodearraylist2
+					assert teolnode4 isa nullable TEol
+					var plinenode1: nullable AEmptyLine = new AEmptyLine.init_aemptyline(
 						null,
-						pinstructionnode3,
-						null,
-						teolnode5
+						tcommentnode3,
+						teolnode4
 					)
 					node_list = plinenode1
 					p.push(p.go_to(_goto), node_list)
@@ -459,6 +462,50 @@ private class ReduceAction7
 					var nodearraylist1 = p.pop
 					var plabeldeclnode2 = nodearraylist1
 					assert plabeldeclnode2 isa nullable ALabelDecl
+					var tcommentnode3 = nodearraylist2
+					assert tcommentnode3 isa nullable TComment
+					var teolnode4 = nodearraylist3
+					assert teolnode4 isa nullable TEol
+					var plinenode1: nullable AEmptyLine = new AEmptyLine.init_aemptyline(
+						plabeldeclnode2,
+						tcommentnode3,
+						teolnode4
+					)
+					node_list = plinenode1
+					p.push(p.go_to(_goto), node_list)
+	end
+end
+private class ReduceAction8
+	super ReduceAction
+	redef fun action(p: Parser)
+	do
+					var node_list: nullable Object = null
+					var nodearraylist2 = p.pop
+					var nodearraylist1 = p.pop
+					var pinstructionnode3 = nodearraylist1
+					assert pinstructionnode3 isa nullable AInstruction
+					var teolnode5 = nodearraylist2
+					assert teolnode5 isa nullable TEol
+					var plinenode1: nullable AInstructionLine = new AInstructionLine.init_ainstructionline(
+						null,
+						pinstructionnode3,
+						null,
+						teolnode5
+					)
+					node_list = plinenode1
+					p.push(p.go_to(_goto), node_list)
+	end
+end
+private class ReduceAction9
+	super ReduceAction
+	redef fun action(p: Parser)
+	do
+					var node_list: nullable Object = null
+					var nodearraylist3 = p.pop
+					var nodearraylist2 = p.pop
+					var nodearraylist1 = p.pop
+					var plabeldeclnode2 = nodearraylist1
+					assert plabeldeclnode2 isa nullable ALabelDecl
 					var pinstructionnode3 = nodearraylist2
 					assert pinstructionnode3 isa nullable AInstruction
 					var teolnode5 = nodearraylist3
@@ -473,7 +520,7 @@ private class ReduceAction7
 					p.push(p.go_to(_goto), node_list)
 	end
 end
-private class ReduceAction8
+private class ReduceAction10
 	super ReduceAction
 	redef fun action(p: Parser)
 	do
@@ -497,7 +544,7 @@ private class ReduceAction8
 					p.push(p.go_to(_goto), node_list)
 	end
 end
-private class ReduceAction9
+private class ReduceAction11
 	super ReduceAction
 	redef fun action(p: Parser)
 	do
@@ -524,7 +571,7 @@ private class ReduceAction9
 					p.push(p.go_to(_goto), node_list)
 	end
 end
-private class ReduceAction10
+private class ReduceAction12
 	super ReduceAction
 	redef fun action(p: Parser)
 	do
@@ -545,7 +592,7 @@ private class ReduceAction10
 					p.push(p.go_to(_goto), node_list)
 	end
 end
-private class ReduceAction11
+private class ReduceAction13
 	super ReduceAction
 	redef fun action(p: Parser)
 	do
@@ -569,7 +616,7 @@ private class ReduceAction11
 					p.push(p.go_to(_goto), node_list)
 	end
 end
-private class ReduceAction12
+private class ReduceAction14
 	super ReduceAction
 	redef fun action(p: Parser)
 	do
@@ -593,7 +640,7 @@ private class ReduceAction12
 					p.push(p.go_to(_goto), node_list)
 	end
 end
-private class ReduceAction13
+private class ReduceAction15
 	super ReduceAction
 	redef fun action(p: Parser)
 	do
@@ -620,7 +667,7 @@ private class ReduceAction13
 					p.push(p.go_to(_goto), node_list)
 	end
 end
-private class ReduceAction14
+private class ReduceAction16
 	super ReduceAction
 	redef fun action(p: Parser)
 	do
@@ -639,7 +686,7 @@ private class ReduceAction14
 					p.push(p.go_to(_goto), node_list)
 	end
 end
-private class ReduceAction15
+private class ReduceAction17
 	super ReduceAction
 	redef fun action(p: Parser)
 	do
@@ -654,7 +701,7 @@ private class ReduceAction15
 					p.push(p.go_to(_goto), node_list)
 	end
 end
-private class ReduceAction16
+private class ReduceAction18
 	super ReduceAction
 	redef fun action(p: Parser)
 	do
@@ -673,7 +720,7 @@ private class ReduceAction16
 					p.push(p.go_to(_goto), node_list)
 	end
 end
-private class ReduceAction17
+private class ReduceAction19
 	super ReduceAction
 	redef fun action(p: Parser)
 	do
@@ -688,7 +735,7 @@ private class ReduceAction17
 					p.push(p.go_to(_goto), node_list)
 	end
 end
-private class ReduceAction18
+private class ReduceAction20
 	super ReduceAction
 	redef fun action(p: Parser)
 	do
@@ -711,7 +758,7 @@ private class ReduceAction18
 					p.push(p.go_to(_goto), node_list)
 	end
 end
-private class ReduceAction19
+private class ReduceAction21
 	super ReduceAction
 	redef fun action(p: Parser)
 	do
@@ -726,7 +773,7 @@ private class ReduceAction19
 					p.push(p.go_to(_goto), node_list)
 	end
 end
-private class ReduceAction20
+private class ReduceAction22
 	super ReduceAction
 	redef fun action(p: Parser)
 	do
@@ -741,7 +788,7 @@ private class ReduceAction20
 					p.push(p.go_to(_goto), node_list)
 	end
 end
-private class ReduceAction21
+private class ReduceAction23
 	super ReduceAction
 	redef fun action(p: Parser)
 	do
@@ -756,7 +803,7 @@ private class ReduceAction21
 					p.push(p.go_to(_goto), node_list)
 	end
 end
-private class ReduceAction22
+private class ReduceAction24
 	super ReduceAction
 	redef fun action(p: Parser)
 	do
@@ -771,7 +818,7 @@ private class ReduceAction22
 					p.push(p.go_to(_goto), node_list)
 	end
 end
-private class ReduceAction23
+private class ReduceAction25
 	super ReduceAction
 	redef fun action(p: Parser)
 	do
@@ -786,7 +833,7 @@ private class ReduceAction23
 					p.push(p.go_to(_goto), node_list)
 	end
 end
-private class ReduceAction24
+private class ReduceAction26
 	super ReduceAction
 	redef fun action(p: Parser)
 	do
@@ -805,7 +852,7 @@ private class ReduceAction24
 					p.push(p.go_to(_goto), node_list)
 	end
 end
-private class ReduceAction25
+private class ReduceAction27
 	super ReduceAction
 	redef fun action(p: Parser)
 	do
@@ -824,7 +871,7 @@ private class ReduceAction25
 					p.push(p.go_to(_goto), node_list)
 	end
 end
-private class ReduceAction26
+private class ReduceAction28
 	super ReduceAction
 	redef fun action(p: Parser)
 	do
@@ -843,7 +890,7 @@ private class ReduceAction26
 					p.push(p.go_to(_goto), node_list)
 	end
 end
-private class ReduceAction27
+private class ReduceAction29
 	super ReduceAction
 	redef fun action(p: Parser)
 	do
@@ -862,7 +909,7 @@ private class ReduceAction27
 					p.push(p.go_to(_goto), node_list)
 	end
 end
-private class ReduceAction28
+private class ReduceAction30
 	super ReduceAction
 	redef fun action(p: Parser)
 	do
@@ -881,7 +928,7 @@ private class ReduceAction28
 					p.push(p.go_to(_goto), node_list)
 	end
 end
-private class ReduceAction29
+private class ReduceAction31
 	super ReduceAction
 	redef fun action(p: Parser)
 	do
@@ -900,7 +947,7 @@ private class ReduceAction29
 					p.push(p.go_to(_goto), node_list)
 	end
 end
-private class ReduceAction30
+private class ReduceAction32
 	super ReduceAction
 	redef fun action(p: Parser)
 	do
@@ -919,7 +966,7 @@ private class ReduceAction30
 					p.push(p.go_to(_goto), node_list)
 	end
 end
-private class ReduceAction31
+private class ReduceAction33
 	super ReduceAction
 	redef fun action(p: Parser)
 	do
@@ -934,7 +981,7 @@ private class ReduceAction31
 					p.push(p.go_to(_goto), node_list)
 	end
 end
-private class ReduceAction32
+private class ReduceAction34
 	super ReduceAction
 	redef fun action(p: Parser)
 	do

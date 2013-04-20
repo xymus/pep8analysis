@@ -102,6 +102,7 @@ class AListing
 end
 class AEmptyLine
 	super ALine
+    readable var _n_label_decl: nullable ALabelDecl = null
     readable var _n_comment: nullable TComment = null
     readable var _n_eol: TEol
 end

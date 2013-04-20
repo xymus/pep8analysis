@@ -93,7 +93,7 @@ Productions
 listing = [lines]:line* label_decl? end_block;
 
 line
-	= {empty} comment? eol
+	= {empty} label_decl? comment? eol
 	| {instruction} label_decl? instruction comment? eol
 	| {directive} label_decl? directive comment? eol;
 

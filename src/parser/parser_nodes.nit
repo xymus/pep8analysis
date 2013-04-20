@@ -90,6 +90,7 @@ end
 
 class ALine
 	super Prod
+	readable var _n_label_decl: nullable ALabelDecl = null
     readable var _n_comment: nullable TComment = null
 end
 class AInstruction
@@ -115,7 +116,6 @@ class AEmptyLine
 end
 abstract class ANonEmptyLine
 	super ALine
-    readable var _n_label_decl: nullable ALabelDecl = null
 end
 class AInstructionLine
 	super ANonEmptyLine
