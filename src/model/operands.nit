@@ -34,7 +34,7 @@ end
 
 redef class AHexValue
 	#TODO
-	#redef fun to_i return n_number.text.to_i
+	redef fun to_i do return n_hex.text.to_hex
 end
 
 redef class TString # TkBlock
