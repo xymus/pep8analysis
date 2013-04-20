@@ -4,13 +4,19 @@ import advanced_collections
 class FlowAnalysis[S] # : Collection[Object]]
 	super Visitor
 
-	var current_in: S writable = default_in_set
-	var current_out: S writable = default_in_set
+	var current_in: S writable# = default_in_set
+	var current_out: S writable# = default_in_set
 
 	fun in_set(bb: BasicBlock): nullable S is abstract
 	fun out_set(bb: BasicBlock): nullable S is abstract
 	fun in_set=(bb: BasicBlock, s: S) is abstract
 	fun out_set=(bb: BasicBlock, s: S) is abstract
+
+	init
+	do
+		current_in = default_in_set
+		current_out = default_in_set
+	end
 
 	redef fun visit( node ) do node.visit_all(self)
 
