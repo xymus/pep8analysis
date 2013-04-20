@@ -16,7 +16,7 @@ import rich_instructions
 abstract class ARegisterSuffixed
 	super AInstruction
 
-	fun register : Char do return n_id.text.last
+	fun register : Char do return n_id.text.to_upper.last
 end
 
 abstract class ADigitSuffixed
