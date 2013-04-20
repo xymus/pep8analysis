@@ -18,7 +18,7 @@ redef class AAsciiDirective
 	redef fun size do return n_value.as(AStringValue).n_string.content.length
 end
 redef class AAddrssDirective
-	redef fun size do return 1 # TODO check
+	redef fun size do return 2
 end
 redef class AEquateDirective
 	redef fun size do return 0 # TODO what is this?
