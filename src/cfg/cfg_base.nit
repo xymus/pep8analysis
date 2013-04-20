@@ -16,6 +16,8 @@ class CFG
 	var addr_to_blocks = new HashMap[Int,BasicBlock]
 	var blocks = new Array[BasicBlock]
 
+	var has_function_calls = false
+
 	init (model: Model)
 	do
 		var starts = [0]
@@ -126,6 +128,7 @@ class CFG
 				end
 
 				if instr isa ACallInstruction then
+					has_function_calls = true
 					var next_addr = line.address+4
 					if not addr_to_blocks.has_key(next_addr) then
 						print "error, no instruction following call {b.name}"
