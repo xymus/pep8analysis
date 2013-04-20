@@ -7,10 +7,10 @@ class FlowAnalysis[S] # : Collection[Object]]
 	var current_in: S writable = default_in_set
 	var current_out: S writable = default_in_set
 
-	fun get_in(bb: BasicBlock): nullable S is abstract
-	fun get_out(bb: BasicBlock): nullable S is abstract
-	fun set_in(bb: BasicBlock, s: S) is abstract
-	fun set_out(bb: BasicBlock, s: S) is abstract
+	fun in_set(bb: BasicBlock): nullable S is abstract
+	fun out_set(bb: BasicBlock): nullable S is abstract
+	fun in_set=(bb: BasicBlock, s: S) is abstract
+	fun out_set=(bb: BasicBlock, s: S) is abstract
 
 	redef fun visit( node ) do node.visit_all(self)
 
@@ -42,17 +42,17 @@ class FlowAnalysis[S] # : Collection[Object]]
 					# get default in (the most safe one)
 					current_in = default_in_set
 				else
-					current_in = get_out(block.predecessors.first)
+					current_in = out_set(block.predecessors.first)
 					for l in [1..block.predecessors.length[ do
 						var b = block.predecessors[l]
-						current_in = merge(current_in.as(not null), get_out(b).as(not null))
+						current_in = merge(current_in.as(not null), out_set(b).as(not null))
 					end
 				end
 
 				if block.lines.is_empty then
 				else
 					if current_in != null then
-						set_in(block,current_in.as(not null))
+						in_set(block) = current_in.as(not null)
 					end
 
 					for line in block.lines do
@@ -67,14 +67,14 @@ class FlowAnalysis[S] # : Collection[Object]]
 					end
 				end
 
-				var old_out = get_out(block)
+				var old_out = out_set(block)
 				current_out = self.current_out
 				if old_out != current_out then
-					set_out(block,current_out.as(not null))
+					out_set(block) = current_out.as(not null)
 					changed_blocks.add(block)
-					print "change"
+					#print "out changed"
 				else
-					print "no change"
+					#print "out not changed"
 				end
 			end
 
