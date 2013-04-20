@@ -28,8 +28,8 @@ redef class AnalysisManager
 		opts.parse(args)
 		var files = opts.rest
 
-		if files.length != 1 or opt_help.value then
-			print "Usage: {sys.program_name} [options] file.pep"
+		if files.is_empty or opt_help.value then
+			print "Usage: {sys.program_name} [options] file.pep [other_file.pep [...]]"
 			print "Options:"
 			opts.usage
 			return
@@ -40,36 +40,61 @@ redef class AnalysisManager
 		if not dir.file_exists then dir.mkdir
 
 		# Parsing
-		var filename = files.first
-		if not filename.file_exists then
-				print "Target file \"{filename}\" does not exist."
-				exit 1
+		for filename in files do
+			reset # noter
+
+			if verbose then print "Analyzing {filename}"
+			if not filename.file_exists then
+					print "Target file \"{filename}\" does not exist."
+					exit 1
+			end
+			var ast = build_ast( filename )
+			assert ast != null
+
+			if failed then continue
+
+			# Build program model
+			var model = build_model(ast)
+
+			if failed then continue
+
+			if model.lines.is_empty then
+				fatal_error( ast, "This programs appears empty" )
+				continue
+			end
+
+			# Create CFG
+			var cfg = build_cfg(model)
+
+			if failed then continue
+
+			# deal with functions
+			#inline_or_integrate_functions
+
+			# Run analysis
+
+			## Reaching defs
+			var reaching_defs_analysis = new ReachingDefsAnalysis
+			reaching_defs_analysis.analyze(cfg)
+
+			## Range
+			var range_analysis = new RangeAnalysis
+			range_analysis.analyze(cfg)
+
+			## dead code
+
+			## type
+			do_types_analysis(ast, cfg)
+
+			## duplications
+
+			# Print results
+			var of = new OFStream.open("{dir}/{filename.replace("/","-").replace(".pep",".dot")}")
+			cfg.print_dot(of, true)
 		end
-		var ast = build_ast( filename )
-		assert ast != null
-
-		# check instructions and directives
-		## check if directive values overflow from type
-
-		# Build program model
-		var model = build_model(ast)
-
-		# Create CFG
-		var cfg = build_cfg(model)
-
-		# Run analysis
-
-		## Range
-		var range_analysis = new RangeAnalysis
-		range_analysis.analyze(cfg)
-		var of = new OFStream.open("range.dot")
-		cfg.print_dot(of, true)
-
-		## dead code
-
-		## type
-
-		## duplications
+		if not opt_quiet.value then
+			print_notes
+		end
 	end
 end
 
