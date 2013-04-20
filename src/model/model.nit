@@ -54,7 +54,16 @@ end
 
 redef class ALine
 	var address: Int = -1
+
 	fun size: Int is abstract
+
+	redef fun to_s do return "L{address}"
+
+	redef fun text
+	do
+		var text = super
+		return "{to_s}: {text}"
+	end
 end
 redef class AInstructionLine
 	redef fun size do return 4

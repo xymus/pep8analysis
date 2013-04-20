@@ -84,7 +84,7 @@ redef class ALabelDecl
 end
 
 redef class ALine
-	redef fun to_s
+	fun text: String
 	do
 		var p = new ASTPrinter
 		p.enter_visit( self )
