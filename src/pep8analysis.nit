@@ -8,12 +8,16 @@ import flow_analysis
 
 redef class AnalysisManager
 	var opt_help = new OptionBool("Display this help message", "--help","-h")
+	var opt_quiet = new OptionBool("Do not show notes", "--quiet","-q")
+	fun quiet: Bool do return opt_quiet.value
+	fun verbose: Bool do return not opt_quiet.value
 
 	redef init
 	do
 		super
 
 		opts.add_option(opt_help)
+		opts.add_option(opt_quiet)
 	end
 
 	fun run
