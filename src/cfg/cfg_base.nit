@@ -162,7 +162,7 @@ class CFG
 	# at each call site, the tree representing the
 	fun inline_functions
 	do
-		inline_functions_recursive(start,0)
+		inline_functions_recursive(start, new List[BasicBlock]) #0)
 
 		# retain only blocks reachble from start
 		var reachables = new HashSet[BasicBlock]
@@ -180,10 +180,27 @@ class CFG
 		self.blocks = reachables.to_a
 	end
 
-	private fun inline_functions_recursive(b: BasicBlock, depth: Int)
+	private fun inline_functions_recursive(b: BasicBlock, seq: List[BasicBlock]) #depth: Int)
 	do
 		# Protection against cycles
-		if depth > 1000 then return
+		#if depth > 1000 then return
+		var sl = seq.length
+		var loop_length = 3
+		if sl > loop_length then
+			for i in [0..sl-loop_length[ do
+				var same = true
+				for j in [0..loop_length[ do if seq[i+j]!=seq[sl-3+j] then
+					same = false
+					break
+				end
+
+				if same then
+					print "recursive since {seq[i].name}"
+					return
+				end
+			end
+		end
+		#if seq.has(b) then return
 
 		if not b.lines.is_empty then
 			var line = b.lines.last
@@ -198,20 +215,32 @@ class CFG
 						new HashMap[BasicBlock,BasicBlock], rets, 0, blocks)
 					b.successors[0] = n
 					n.predecessors.add(b)
-					assert n.predecessors.length == 1
-					assert b.successors.length == 1
-					# TODO add information about duplicated block that are not dead
 
-					# link!
-					var next = b.after_call.as(not null)
-					# Another protection against cycles
-					for ret in rets do
-						ret.successors.add(next)
-						next.predecessors.add(ret)
+					if b.after_call == null then
+						print "Already inlined"
+						return
+					else
+						# TODO bring back assert
+						if n.predecessors.length > 1 then
+							print "many pred"
+							print "n {n.name}"
+							print "preds {n.predecessors.join(" ")}"
+						end
+						assert n.predecessors.length == 1 else print n.predecessors.length
+						assert b.successors.length == 1
+						# TODO add information about duplicated block that are not dead
+
+						# link!
+						var next = b.after_call.as(not null)
+						# Another protection against cycles
+						for ret in rets do
+							ret.successors.add(next)
+							next.predecessors.add(ret)
+						end
+						#print "linking {b.name} to {next.name} ret len {rets.length}"
+
+						b.after_call = null
 					end
-					#print "linking {b.name} to {next.name} ret len {rets.length}"
-
-					b.after_call = null
 				end
 			end
 		end
