@@ -48,10 +48,10 @@ redef class TId
 	redef fun accept_ast_printer(v: ASTPrinter)
 	do
 		var len = self.to_s.length
-		if len < 6 then
+		if len < 6 and len > 1 then
 			v.str += self.to_s + " "*(6-len)
 		else
-			v.str += self.to_s + " "
+			v.str += self.to_s
 		end
 	end
 end
