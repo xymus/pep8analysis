@@ -93,3 +93,60 @@ class FlowAnalysis[S] # : Collection[Object]]
 	fun pre_line_visit(l: ALine) do end
 	fun post_line_visit(l: ALine) do end
 end
+
+class FineFlowAnalysis[V]
+	super FlowAnalysis[V]
+
+	redef fun in_set(bb)
+	do
+		if bb.lines.is_empty then return backup_in(bb)
+		return line_in( bb.lines.first )
+	end
+
+	redef fun in_set=(bb, v)
+	do
+		if bb.lines.is_empty then
+			backup_in(bb) = v
+		else line_in( bb.lines.first ) = v
+	end
+
+	redef fun out_set(bb)
+	do
+		if bb.lines.is_empty then return backup_out(bb)
+		return line_out( bb.lines.last )
+	end
+
+	redef fun out_set=(bb, v)
+	do
+		if bb.lines.is_empty then
+			backup_out(bb) = v
+		else line_out( bb.lines.last ) = v
+	end
+
+	fun backup_in(l: BasicBlock): V is abstract
+	fun backup_out(l: BasicBlock): V is abstract
+	fun backup_in=(l: BasicBlock, v: V) is abstract
+	fun backup_out=(l: BasicBlock, v: V) is abstract
+
+	fun line_in(l: ALine): V is abstract
+	fun line_out(l: ALine): V is abstract
+	fun line_in=(l: ALine, v: V) is abstract
+	fun line_out=(l: ALine, v: V) is abstract
+
+	redef fun pre_line_visit(line) do line_in(line) = current_in #.as(not null)
+	redef fun post_line_visit(line) do line_out(line) = current_out #.as(not null)
+end
+
+class StaticAnalysis[S]
+	super Visitor
+
+	var set: S
+	init (set: S) do self.set = set
+
+	redef fun visit( node ) do node.visit_all(self)
+	fun analyze(ast: AListing): S
+	do
+		enter_visit(ast)
+		return set
+	end
+end
