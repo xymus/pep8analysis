@@ -62,5 +62,9 @@ redef class AnalysisManager
 	end
 end
 
-var manager = new AnalysisManager
+redef class Object
+	redef fun noter do return once new AnalysisManager
+end
+
+var manager = noter.as(AnalysisManager)
 manager.run

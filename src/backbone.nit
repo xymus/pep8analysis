@@ -85,3 +85,7 @@ class Fatal
 	end
 	redef fun prefix do return "Fatal:   "
 end
+
+redef class Object
+	protected fun noter: Noter is abstract
+end
