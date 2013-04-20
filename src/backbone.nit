@@ -31,9 +31,11 @@ abstract class Noter
 		end
 	end
 
-	fun fatal_error(n: ANode, msg: String)
+	fun fatal_error(n: nullable ANode, msg: String)
 	do
-		notes.add( new Fatal(n.location, msg) )
+		var loc = null
+		if n != null then loc = n.location
+		notes.add( new Fatal(loc, msg) )
 		failed = true
 	end
 
