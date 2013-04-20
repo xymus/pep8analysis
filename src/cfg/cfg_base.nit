@@ -20,8 +20,10 @@ class CFG
 
 	init (model: Model)
 	do
+		assert not model.lines.is_empty
+
 		var starts = [0]
-		var ends = new Array[Int]
+		var ends = [model.lines.last.address]
 
 		# detect basic block limits
 		for line in model.lines do
