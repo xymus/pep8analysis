@@ -31,6 +31,7 @@ redef class AnalysisManager
 			if opt_cfg_inline.value then
 				cfg.inline_functions
 			else
+				cfg.watchdog = 0
 				var to_link = new List[BasicBlock]
 				if not cfg.link_ret_to_calls(cfg.start, to_link, new List[BasicBlock], 0) then
 					noter.fatal_error(null, "failed to organize function calls")
