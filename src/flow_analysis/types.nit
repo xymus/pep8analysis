@@ -12,7 +12,7 @@ redef class AnalysisManager
 		var ta = new TypesAnalysis(tia)
 		ta.analyze(cfg)
 
-		# check for types
+		# check for errors
 		var tc = new TypesChecker(ast)
 		tc.analyze(ast)
 	end
@@ -298,13 +298,15 @@ redef class AArithmeticInstruction
 	do
 		var content = v.current_line.types_in.as(not null).rs[register]
 		if content.count('u') == 2 then
-			# unitialized data
-			noter.notes.add(new Warn(location, "use of unitialized values"))
+			# uninitialized data
+			noter.notes.add(new Warn(location, "use of uninitialized values (reg: {content})"))
 		else if content[0] == 'W' or content[1] == 'w' then
-			noter.notes.add(new Warn(location, "use of deorganized word"))
+			noter.notes.add(new Warn(location, "use of deorganized word (reg: {content})"))
+		else if (content[0] == 'w' and content[1] != 'W') or (content[1] == 'W' and content[0] != 'w') then
+			noter.notes.add(new Warn(location, "use of partial word (reg: {content})"))
 		else if content.count('u') == 1 then
 			# partially unitialized, a bad sign
-			noter.notes.add(new Warn(location, "use of partially unitialized values"))
+			noter.notes.add(new Warn(location, "use of partially uninitialized values (reg: {content})"))
 		end
 	end
 end
