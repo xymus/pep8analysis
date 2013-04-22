@@ -3,6 +3,6 @@ doc/
 tests/students/
 bin/
 .*
-src/ast/parser/*.orig
-src/ast/parser/*.dump
+src/parser/*.orig
+src/parser/*.dump
 out/
