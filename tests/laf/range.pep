@@ -8,6 +8,6 @@ eq:  LDA	  16,i
 end: STA	  aff,d
      DECO  aff,d
      STOP
-in: .BLOCK 2
-aff:.BLOCK 2
+in: .WORD  0
+aff:.BLOCK 0
     .END
