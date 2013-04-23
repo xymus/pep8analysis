@@ -21,7 +21,7 @@ class FlowAnalysis[S]
 	redef fun visit( node ) do node.visit_all(self)
 
 	# If false, it is a backwards analysis
-	fun is_forwards: Bool is abstract
+	fun is_forward: Bool is abstract
 
 	# ex: do return in1.union( in2 )
 	# ex: do return in1.intersection( in2 )
@@ -37,59 +37,56 @@ class FlowAnalysis[S]
 		var current_out: nullable S
 
 		# set current input as default start case
-		var changed_blocks: Set[BasicBlock]
+		var todo = new List[BasicBlock]
+		todo.add_all(cfg.blocks)
 
 		# iterate until fixed point reached
-		loop
-			changed_blocks = new HashSet[BasicBlock]
+		while not todo.is_empty do
 
-			# iterate over all blocks
-			for block in cfg.blocks do
-				if block == cfg.start then
-					continue
-				else if block.predecessors.is_empty then
-					# get default in (the most safe one)
-					current_in = default_in_set
-				else
-					current_in = out_set(block.predecessors.first)
-					for l in [1..block.predecessors.length[ do
-						var b = block.predecessors[l]
-						current_in = merge(current_in.as(not null), out_set(b).as(not null))
-					end
-				end
+			var block = todo.shift
 
-				if current_in != null then
-					in_set(block) = current_in.as(not null)
-				end
-
-				if block == cfg.finish then continue
-
-				for line in block.lines do
-					self.current_in = current_in.as(not null)
-					self.current_out = empty_set
-					pre_line_visit(line)
-					enter_visit(line)
-					post_line_visit(line)
-					current_out = self.current_out
-					current_in = self.current_out
-					#self.current_in = current_in
-				end
-
-				var old_out = out_set(block)
-				current_out = self.current_out
-				if old_out != current_out then
-					out_set(block) = current_out.as(not null)
-					changed_blocks.add(block)
-					print "out changed {block.name}"
-				#else if old_out == null or current_out == null then
-				else
-					print "out not changed {block.name}"
+			if block == cfg.start then
+				continue
+			else if block.predecessors.is_empty then
+				# get default in (the most safe one)
+				current_in = default_in_set
+			else
+				current_in = out_set(block.predecessors.first)
+				for l in [1..block.predecessors.length[ do
+					var b = block.predecessors[l]
+					current_in = merge(current_in, out_set(b))
 				end
 			end
 
-			#	limit -= 1
-			#if changed_blocks.is_empty or limit <= 0 then break
-			if changed_blocks.is_empty then break
+			if current_in != null then
+				in_set(block) = current_in.as(not null)
+			else
+				continue
+			end
+
+			if block == cfg.finish then continue
+
+			for line in block.lines do
+				self.current_in = current_in.as(not null)
+				self.current_out = empty_set
+				pre_line_visit(line)
+				enter_visit(line)
+				post_line_visit(line)
+				current_out = self.current_out
+				current_in = self.current_out.as(not null)
+				#self.current_in = current_in
+			end
+
+			var old_out = out_set(block)
+			current_out = self.current_out
+			if old_out != current_out then
+				out_set(block) = current_out.as(not null)
+				if is_forward then
+					for b in block.successors do todo.add(b)
+				else
+					for b in block.predecessors do todo.add(b)
+				end
+			end
 		end
 	end
 
@@ -136,8 +133,8 @@ class FineFlowAnalysis[V]
 	fun line_in=(l: ALine, v: nullable V) is abstract
 	fun line_out=(l: ALine, v: nullable V) is abstract
 
-	redef fun pre_line_visit(line) do line_in(line) = current_in #.as(not null)
-	redef fun post_line_visit(line) do line_out(line) = current_out #.as(not null)
+	redef fun pre_line_visit(line) do line_in(line) = current_in
+	redef fun post_line_visit(line) do line_out(line) = current_out
 end
 
 class StaticAnalysis[S]
