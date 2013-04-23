@@ -2,6 +2,15 @@ module reaching_defs
 
 import framework
 
+redef class AnalysisManager
+	fun do_reaching_defs_analysis(cfg: CFG)
+	do
+		cfg.start.backup_reaching_defs_out = new ReachingDefsMap
+		var reaching_defs_analysis = new ReachingDefsAnalysis
+		reaching_defs_analysis.analyze(cfg)
+	end
+end
+
 class ReachingDefsAnalysis
 	super FineFlowAnalysis[ReachingDefsMap]
 
@@ -9,38 +18,44 @@ class ReachingDefsAnalysis
 
 	redef fun visit( node )
 	do
-		node.accept_reaching_defs_analysis( self, current_in, current_out )
+		node.accept_reaching_defs_analysis( self, current_in, current_out.as(not null) )
 	end
-	redef fun merge(a,b) do return a.union(b)
+	redef fun merge(a,b)
+	do
+		if a == null then return b
+		if b == null then return a
+		return a.union(b)
+	end
 
-	redef fun backup_in(bb) do return bb.backup_reaching_defs_in or else new ReachingDefsMap
-	redef fun backup_out(bb) do return bb.backup_reaching_defs_out or else new ReachingDefsMap
+	redef fun backup_in(bb) do return bb.backup_reaching_defs_in
+	redef fun backup_out(bb) do return bb.backup_reaching_defs_out
 	redef fun backup_in=(bb, v) do bb.backup_reaching_defs_in = v
 	redef fun backup_out=(bb, v) do bb.backup_reaching_defs_out = v
 
-	redef fun line_in(line) do return line.reaching_defs_in or else new ReachingDefsMap
-	redef fun line_out(line) do return line.reaching_defs_out or else new ReachingDefsMap
+	redef fun line_in(line) do return line.reaching_defs_in
+	redef fun line_out(line) do return line.reaching_defs_out
 	redef fun line_in=(line, v) do line.reaching_defs_in = v
 	redef fun line_out=(line, v) do line.reaching_defs_out = v
 
 	redef fun default_in_set do return new ReachingDefsMap
+	redef fun empty_set do return new ReachingDefsMap
 end
 
 redef class ANode
-	fun accept_reaching_defs_analysis(v: ReachingDefsAnalysis, ins: ReachingDefsMap, outs: ReachingDefsMap) do visit_all(v)
+	fun accept_reaching_defs_analysis(v: ReachingDefsAnalysis, ins: nullable ReachingDefsMap, outs: ReachingDefsMap) do visit_all(v)
 end
 
 redef class AInstruction
 	redef fun accept_reaching_defs_analysis(v, ins, outs)
 	do
-		outs.recover_with(ins)
+		if ins != null then outs.recover_with(ins)
 	end
 end
 
 redef class ALoadInstruction
 	redef fun accept_reaching_defs_analysis(v, ins, outs)
 	do
-		outs.recover_with(ins)
+		if ins != null then outs.recover_with(ins)
 
 		var variable = def_var
 		if variable != null then
@@ -57,7 +72,7 @@ end
 redef class AStoreInstruction
 	redef fun accept_reaching_defs_analysis(v, ins, outs)
 	do
-		outs.recover_with(ins)
+		if ins != null then outs.recover_with(ins)
 
 		var variable = def_var
 		if variable != null then
@@ -139,7 +154,7 @@ redef class BasicBlock
 			if backup_reaching_defs_out != null then
 				return "{super}-- r defs out = \{{backup_reaching_defs_out.to_s}\}\\l"
 			end
-		else if backup_reaching_defs_out != null then return  "{super}-- r defs out = \{{lines.last.reaching_defs_out.to_s}\}\\l"
+		else if lines.first.reaching_defs_out != null then return  "{super}-- r defs out = \{{lines.last.reaching_defs_out.to_s}\}\\l"
 		return super
 	end
 end

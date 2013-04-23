@@ -68,14 +68,10 @@ redef class AnalysisManager
 
 			if failed then continue
 
-			# deal with functions
-			#inline_or_integrate_functions
-
 			# Run analyses
 
 			## Reaching defs
-			var reaching_defs_analysis = new ReachingDefsAnalysis
-			reaching_defs_analysis.analyze(cfg)
+			do_reaching_defs_analysis(cfg)
 
 			## Range
 			run_range_analysis(ast, cfg)
