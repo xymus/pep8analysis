@@ -1,11 +1,11 @@
 import cfg
 import advanced_collections
 
-class FlowAnalysis[S] # : Collection[Object]]
+class FlowAnalysis[S]
 	super Visitor
 
-	var current_in: S writable# = default_in_set
-	var current_out: S writable# = default_in_set
+	var current_in:  nullable S writable
+	var current_out: nullable S writable
 
 	fun in_set(bb: BasicBlock): nullable S is abstract
 	fun out_set(bb: BasicBlock): nullable S is abstract
@@ -25,9 +25,10 @@ class FlowAnalysis[S] # : Collection[Object]]
 
 	# ex: do return in1.union( in2 )
 	# ex: do return in1.intersection( in2 )
-	fun merge( in1, in2: S): S is abstract
+	fun merge( in1, in2: nullable S): nullable S is abstract
 
-	fun default_in_set: S is abstract
+	fun default_in_set: nullable S do return null
+	fun empty_set: S is abstract
 
 	fun analyze(cfg: CFG)
 	do
@@ -44,7 +45,9 @@ class FlowAnalysis[S] # : Collection[Object]]
 
 			# iterate over all blocks
 			for block in cfg.blocks do
-				if block.predecessors.is_empty then
+				if block == cfg.start then
+					continue
+				else if block.predecessors.is_empty then
 					# get default in (the most safe one)
 					current_in = default_in_set
 				else
@@ -55,22 +58,21 @@ class FlowAnalysis[S] # : Collection[Object]]
 					end
 				end
 
-				if block.lines.is_empty then
-				else
-					if current_in != null then
-						in_set(block) = current_in.as(not null)
-					end
+				if current_in != null then
+					in_set(block) = current_in.as(not null)
+				end
 
-					for line in block.lines do
-						self.current_in = current_in.as(not null)
-						self.current_out = default_in_set # TODO change
-						pre_line_visit(line)
-						enter_visit(line)
-						post_line_visit(line)
-						current_out = self.current_out
-						current_in = self.current_out
-						#self.current_in = current_in
-					end
+				if block == cfg.finish then continue
+
+				for line in block.lines do
+					self.current_in = current_in.as(not null)
+					self.current_out = empty_set
+					pre_line_visit(line)
+					enter_visit(line)
+					post_line_visit(line)
+					current_out = self.current_out
+					current_in = self.current_out
+					#self.current_in = current_in
 				end
 
 				var old_out = out_set(block)
@@ -78,9 +80,10 @@ class FlowAnalysis[S] # : Collection[Object]]
 				if old_out != current_out then
 					out_set(block) = current_out.as(not null)
 					changed_blocks.add(block)
-					#print "out changed"
+					print "out changed {block.name}"
+				#else if old_out == null or current_out == null then
 				else
-					#print "out not changed"
+					print "out not changed {block.name}"
 				end
 			end
 
@@ -123,15 +126,15 @@ class FineFlowAnalysis[V]
 		else line_out( bb.lines.last ) = v
 	end
 
-	fun backup_in(l: BasicBlock): V is abstract
-	fun backup_out(l: BasicBlock): V is abstract
-	fun backup_in=(l: BasicBlock, v: V) is abstract
-	fun backup_out=(l: BasicBlock, v: V) is abstract
+	fun backup_in(l: BasicBlock): nullable V is abstract
+	fun backup_out(l: BasicBlock): nullable V is abstract
+	fun backup_in=(l: BasicBlock, v: nullable V) is abstract
+	fun backup_out=(l: BasicBlock, v: nullable V) is abstract
 
-	fun line_in(l: ALine): V is abstract
-	fun line_out(l: ALine): V is abstract
-	fun line_in=(l: ALine, v: V) is abstract
-	fun line_out=(l: ALine, v: V) is abstract
+	fun line_in(l: ALine): nullable V is abstract
+	fun line_out(l: ALine): nullable V is abstract
+	fun line_in=(l: ALine, v: nullable V) is abstract
+	fun line_out=(l: ALine, v: nullable V) is abstract
 
 	redef fun pre_line_visit(line) do line_in(line) = current_in #.as(not null)
 	redef fun post_line_visit(line) do line_out(line) = current_out #.as(not null)
