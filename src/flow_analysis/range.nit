@@ -102,6 +102,16 @@ class ValRange
 		self.min = min
 		self.max = max
 	end
+	init from(o: ValRange)
+	do
+		self.min = o.min
+		self.max = o.max
+	end
+	init at(v: Int)
+	do
+		self.min = v
+		self.max = v
+	end
 
 	redef fun to_s do
 		if min == max then return min.to_s
@@ -184,7 +194,6 @@ redef class AStoreInstruction
 
 		if def != null then
 			if src != null and ins.has_key(src) then # we know the source and dest
-				print "{self.location} st {def}"
 				var cr = ins[src]
 				outs[def] = cr
 			else
@@ -217,12 +226,35 @@ redef class AAnyOperand
 	end
 end
 
+redef class AInputInstruction
+	redef fun accept_range_analysis(v, ins, outs)
+	do
+		visit_all(v)
+
+		outs.recover_with(ins)
+		var def = def_var # mem
+
+		if def != null then
+			outs.remove(def)
+		end
+
+	end
+end
+
 redef class AWordDirective
 	redef fun accept_init_range_analysis(v, set)
 	do
 		var variable = new MemVar(v.current_line.address)
-		var value = new ValRange(n_value.to_i, n_value.to_i)
+		var value = new ValRange.at(n_value.to_i)
 		set[variable] = value
 	end
 end
 
+redef class AByteDirective
+	redef fun accept_init_range_analysis(v, set)
+	do
+		var variable = new MemVar(v.current_line.address)
+		var value = new ValRange.at(n_value.to_i)
+		set[variable] = value
+	end
+end
