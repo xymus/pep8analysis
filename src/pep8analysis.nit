@@ -74,7 +74,7 @@ redef class AnalysisManager
 			do_reaching_defs_analysis(cfg)
 
 			## Range
-			run_range_analysis(ast, cfg)
+			do_range_analysis(ast, cfg)
 
 			## type
 			do_types_analysis(ast, cfg)
