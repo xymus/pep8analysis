@@ -164,7 +164,7 @@ redef class ALoadInstruction
 			if cr != null then
 				outs[variable] = cr
 			else
-				outs.remove(variable)
+				outs.items.remove(variable)
 			end
 		end
 		v.current_range = null
@@ -186,7 +186,7 @@ redef class AStoreInstruction
 				var cr = ins[src]
 				outs[def] = cr
 			else
-				outs.remove(def)
+				outs.items.remove(def)
 			end
 		end
 	end
