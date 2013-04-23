@@ -76,7 +76,7 @@ redef class AnalysisManager
 			## Range
 			do_range_analysis(ast, cfg)
 
-			## type
+			## Types
 			do_types_analysis(ast, cfg)
 
 			# Print results

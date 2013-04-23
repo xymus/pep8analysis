@@ -9,7 +9,8 @@ redef class AnalysisManager
 		tia.analyze(ast)
 
 		# evaluate types with program flow
-		var ta = new TypesAnalysis(tia)
+		cfg.start.backup_types_out = tia.set
+		var ta = new TypesAnalysis
 		ta.analyze(cfg)
 
 		# check for errors
@@ -42,30 +43,27 @@ end
 class TypesAnalysis
 	super FineFlowAnalysis[TypesMap]
 
-	var default_in_set_cache: nullable TypesMap = null
-	redef fun default_in_set do
-		var n = new TypesMap
-		default_in_set_cache.copy_to(n)
-		return n
-	end
+	redef fun empty_set do return new TypesMap
+	redef fun is_forward do return true
 
-	init(tia: TypesInitAnalysis)
+	init do super
+
+	redef fun visit(node) do node.accept_types_analysis(self, current_in, current_out.as(not null))
+
+	redef fun merge(a, b)
 	do
-		default_in_set_cache = tia.set
-		super
+		if a == null then return b
+		if b == null then return a
+		return a.union(b)
 	end
 
-	redef fun visit(node) do node.accept_types_analysis(self, current_in, current_out)
-
-	redef fun merge(a, b) do return a.union(b)
-
-	redef fun backup_in(bb) do return bb.backup_types_in or else new TypesMap
-	redef fun backup_out(bb) do return bb.backup_types_out or else new TypesMap
+	redef fun backup_in(bb) do return bb.backup_types_in
+	redef fun backup_out(bb) do return bb.backup_types_out
 	redef fun backup_in=(bb, v) do bb.backup_types_in = v
 	redef fun backup_out=(bb, v) do bb.backup_types_out = v
 
-	redef fun line_in(line) do return line.types_in or else new TypesMap
-	redef fun line_out(line) do return line.types_out or else new TypesMap
+	redef fun line_in(line) do return line.types_in
+	redef fun line_out(line) do return line.types_out
 	redef fun line_in=(line, v) do line.types_in = v
 	redef fun line_out=(line, v) do line.types_out = v
 
@@ -190,7 +188,7 @@ redef class BasicBlock
 end
 
 redef class ANode
-	fun accept_types_analysis(v: TypesAnalysis, ins: TypesMap, outs: TypesMap) do visit_all(v)
+	fun accept_types_analysis(v: TypesAnalysis, ins: nullable TypesMap, outs: TypesMap) do visit_all(v)
 	fun accept_types_init_analysis(v: TypesInitAnalysis, set: TypesMap) do visit_all(v)
 	fun accept_types_checker(v: TypesChecker) do visit_all(v)
 end
@@ -296,6 +294,8 @@ end
 redef class AArithmeticInstruction
 	redef fun accept_types_checker(v)
 	do
+		if v.current_line.types_in == null then return
+
 		var content = v.current_line.types_in.as(not null).rs[register]
 		if content.count('u') == 2 then
 			# uninitialized data
