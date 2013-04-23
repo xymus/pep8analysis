@@ -59,6 +59,10 @@ redef class AStoreInstruction
 	redef fun src_var do return new RegisterVar(register)
 end
 
+redef class AInputInstruction
+	redef fun def_var do return n_operand.to_var
+end
+
 redef class AOperand
 	fun to_var: nullable Var is abstract
 end
