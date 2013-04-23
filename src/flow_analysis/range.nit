@@ -83,13 +83,13 @@ redef class BasicBlock
 	redef fun dot_node_header
 	do
 		if ranges_in != null then
-			return "{super}-- ranges in = \{{ranges_in.join(", ", ":")}\}\\l"
+			return "{super}-- ranges in = {ranges_in.as(not null)}\\l"
 		else return super
 	end
 	redef fun dot_node_footer
 	do
 		if ranges_out != null then
-			return "{super}-- ranges out = \{{ranges_out.join(", ", ":")}\}\\l"
+			return "{super}-- ranges out = {ranges_out.as(not null)}\\l"
 		else return super
 	end
 end
@@ -129,6 +129,8 @@ class RangeMap
 		c.recover_with(self)
 		return c
 	end
+
+	redef fun to_s do return "\{{join(", ", ":")}\}"
 end
 
 redef class ANode
