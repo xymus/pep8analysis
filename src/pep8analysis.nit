@@ -71,22 +71,17 @@ redef class AnalysisManager
 			# deal with functions
 			#inline_or_integrate_functions
 
-			# Run analysis
+			# Run analyses
 
 			## Reaching defs
 			var reaching_defs_analysis = new ReachingDefsAnalysis
 			reaching_defs_analysis.analyze(cfg)
 
 			## Range
-			var range_analysis = new RangeAnalysis
-			range_analysis.analyze(cfg)
-
-			## dead code
+			run_range_analysis(ast, cfg)
 
 			## type
 			do_types_analysis(ast, cfg)
-
-			## duplications
 
 			# Print results
 			var of = new OFStream.open("{dir}/{filename.replace("/","-").replace(".pep",".dot")}")

@@ -5,12 +5,32 @@ import framework
 # for linex, and should be used in the future
 import reaching_defs
 
+redef class AnalysisManager
+	fun run_range_analysis(ast: AListing, cfg: CFG)
+	do
+		var range_init_analysis = new InitRangeAnalysis(ast)
+		range_init_analysis.analyze(ast)
+
+		var range_analysis = new RangeAnalysis(range_init_analysis.set)
+		range_analysis.analyze(cfg)
+	end
+end
+
 class RangeAnalysis
 	super FlowAnalysis[RangeMap]
 
 	var current_range: nullable ValRange = null
+	var current_var: nullable Var = null
 
-	init do end
+	var default_in_set_cache: RangeMap
+	redef fun default_in_set do return default_in_set_cache.copy
+
+	init(default_in: RangeMap)
+	do
+		default_in_set_cache = default_in
+
+		super
+	end
 
 	redef fun visit(node)
 	do
@@ -23,7 +43,7 @@ class RangeAnalysis
 	do
 		var n = new RangeMap
 		for k, v in a do
-			if b.has_key(k) and v != null and b[k] != null then
+			if b.has_key(k) then
 				# merge ranges
 				var u = b[k]
 				n[k] = new ValRange(v.min.min(u.min), v.max.max(u.max))
@@ -37,8 +57,6 @@ class RangeAnalysis
 	redef fun out_set(bb) do return bb.ranges_out or else new RangeMap
 	redef fun in_set=(bb, s) do bb.ranges_in = s
 	redef fun out_set=(bb, s) do bb.ranges_out = s
-
-	redef fun default_in_set do return new RangeMap #HashMap[String, ValRange]
 end
 
 class InitRangeAnalysis
@@ -94,7 +112,7 @@ class ValRange
 		min == o.min and max == o.max
 end
 class RangeMap
-	super HashMap[Var, nullable ValRange]
+	super HashMap[Var, ValRange]
 	redef fun ==(o)
 	do
 		if o == null or not o isa RangeMap then return false
@@ -103,6 +121,13 @@ class RangeMap
 		for k, v in self do if not o.has_key(k) or o[k] != v then return false
 
 		return true
+	end
+
+	fun copy: RangeMap
+	do
+		var c = new RangeMap
+		c.recover_with(self)
+		return c
 	end
 end
 
@@ -116,7 +141,7 @@ end
 redef class AInstruction
 	redef fun accept_range_analysis(v, ins, outs)
 	do
-			#super
+		visit_all(v)
 		outs.recover_with(ins)
 	end
 end
@@ -125,7 +150,6 @@ redef class ALoadInstruction
 	redef fun accept_range_analysis(v, ins, outs)
 	do
 		visit_all(v)
-		#super
 
 		outs.recover_with(ins)
 		var variable = def_var
@@ -140,12 +164,31 @@ redef class ALoadInstruction
 			if cr != null then
 				outs[variable] = cr
 			else
-				outs[variable] = null
+				outs.remove(variable)
 			end
-		else
-			# TODO top!
 		end
 		v.current_range = null
+	end
+end
+
+redef class AStoreInstruction
+	redef fun accept_range_analysis(v, ins, outs)
+	do
+		visit_all(v)
+
+		outs.recover_with(ins)
+		var src = src_var # reg
+		var def = def_var # mem
+
+		if def != null then
+			if src != null and ins.has_key(src) then # we know the source and dest
+				print "{self.location} st {def}"
+				var cr = ins[src]
+				outs[def] = cr
+			else
+				outs.remove(def)
+			end
+		end
 	end
 end
 
@@ -153,12 +196,14 @@ redef class AAnyOperand
 	redef fun accept_range_analysis(v, ins, outs)
 	do
 		if addressing_mode == "i" then # immediate
+			v.current_var = null
 			v.current_range = new ValRange(n_value.to_i, n_value.to_i)
 			return
 		else if addressing_mode == "d" then # direct
 			var ci = v.current_in
 			var address = n_value.to_i
 			var variable = new MemVar(address)
+			v.current_var = variable
 			if ci.has_key(variable) then
 				var value = ci[variable]
 				v.current_range = new ValRange(value.min, value.max)

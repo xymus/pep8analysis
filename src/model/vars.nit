@@ -46,14 +46,17 @@ end
 
 redef class AInstruction
 	fun def_var: nullable Var is abstract
+	fun src_var: nullable Var is abstract
 end
 
 redef class ALoadInstruction
 	redef fun def_var do return new RegisterVar(register)
+	redef fun src_var do return n_operand.to_var
 end
 
 redef class AStoreInstruction
 	redef fun def_var do return n_operand.to_var
+	redef fun src_var do return new RegisterVar(register)
 end
 
 redef class AOperand
