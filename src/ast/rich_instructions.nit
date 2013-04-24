@@ -354,8 +354,9 @@ class AOrInstruction
 	super AArithmeticInstruction
 	init from( src ) do super
 end
+
 class ACpInstruction
-	super AArithmeticInstruction
+	super ARichBinaryInstruction
 	init from( src ) do super
 end
 
