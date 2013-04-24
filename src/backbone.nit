@@ -22,11 +22,9 @@ abstract class Noter
 		end
 	end
 
-	fun fatal_error(n: nullable ANode, msg: String)
+	fun fatal_error(n: ANode, msg: String)
 	do
-		var loc = null
-		if n != null then loc = n.location
-		notes.add( new Fatal(loc, msg) )
+		notes.add( new Fatal(n.location, msg) )
 		failed = true
 	end
 
@@ -37,11 +35,11 @@ abstract class Noter
 end
 
 abstract class Note
-	var line: nullable Location
+	var line: Location
 	var to: nullable Location = null
 	var msg: String
 
-	init (line: nullable Location, msg: String)
+	init (line: Location, msg: String)
 	do
 		self.line = line
 		self.msg = msg
@@ -56,15 +54,12 @@ abstract class Note
 	fun prefix: String is abstract
 	redef fun to_s do
 		var s = ""
-		var line = line
 		var to = to
-		if line != null then
-			if to != null then
-				s += " from {line} to {to}"
-				s = "{line.to_file_s}:{line.to_line_s}--{to.to_line_s}; "
-			else
-				s = "{line.to_file_s}:{line.to_line_s}; "
-			end
+		if to != null then
+			s += " from {line} to {to}"
+			s = "{line.to_file_s}:{line.to_line_s}--{to.to_line_s}; "
+		else
+			s = "{line.to_file_s}:{line.to_line_s}; "
 		end
 		return "{prefix}{s}{msg}"
 	end
@@ -72,21 +67,21 @@ end
 
 class Warn
 	super Note
-	init (line: nullable Location, msg: String) do super
+	init (line: Location, msg: String) do super
 	init range(from, to: Location, msg: String) do super
 	redef fun prefix do return "Warning: "
 end
 
 class Error
 	super Note
-	init (line: nullable Location, msg: String) do super
+	init (line: Location, msg: String) do super
 	init range(from, to: Location, msg: String) do super
 	redef fun prefix do return "Error:   "
 end
 
 class Fatal
 	super Note
-	init (line: nullable Location, msg: String) do super
+	init (line: Location, msg: String) do super
 	init range(from, to: Location, msg: String) do super
 	redef fun prefix do return "Fatal:   "
 end

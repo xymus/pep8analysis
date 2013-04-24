@@ -21,7 +21,7 @@ redef class AnalysisManager
 		opts.add_option(opt_cfg_inline)
 	end
 
-	redef fun build_cfg(ast)
+	redef fun build_cfg(model)
 	do
 		var cfg = super
 		self.cfg = cfg
@@ -34,7 +34,7 @@ redef class AnalysisManager
 				cfg.watchdog = 0
 				var to_link = new List[BasicBlock]
 				if not cfg.link_ret_to_calls(cfg.start, to_link, new List[BasicBlock], 0) then
-					noter.fatal_error(null, "failed to organize function calls")
+					noter.fatal_error(model.lines.first, "failed to organize function calls")
 				end
 			end
 		end
