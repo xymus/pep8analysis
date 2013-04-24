@@ -10,6 +10,14 @@ redef class AnalysisManager
 	end
 end
 
+redef class ABranchInstruction
+	fun is_indirect: Bool
+	do
+		var op = n_operand
+		return op isa AAnyOperand and (once ["x","d"]).has(op.addressing_mode)
+	end
+end
+
 class CFG
 	var start : BasicBlock
 	var finish : BasicBlock
@@ -25,24 +33,55 @@ class CFG
 		var starts = [0]
 		var ends = [model.lines.last.address]
 
+		# check for indirect branches
+		#var indirect_jump_sites = new Array[Int]
+		var has_indirect_jump_sites = false
+
 		# detect basic block limits
 		for line in model.lines do
-				if line isa AInstructionLine then
-					var instr = line.n_instruction
-					if instr isa ABranchInstruction then
+			if line isa AInstructionLine then
+				var instr = line.n_instruction
+				if instr isa ABranchInstruction then
+					if instr.is_indirect then
+						#indirect_jump_sites.add(line.address)
+						has_indirect_jump_sites = true
+						noter.notes.add(new Warn(instr.location, "use of indirect jumps, the CFG may be wrong"))
+					else
 						var op = instr.n_operand
 						var dest = op.n_value.to_i
 						starts.add(dest)
-						ends.add(line.address)
-						if not instr isa ABrInstruction then
-							# next line is possible start
-							starts.add(line.address+4)
-						end
-					else if instr isa AStopInstruction or
-					  instr isa ARetInstruction then
-						ends.add(line.address)
+					end
+					ends.add(line.address)
+					if not instr isa ABrInstruction then
+						# next line is possible start
+						starts.add(line.address+4)
+					end
+				else if instr isa AStopInstruction or
+					 instr isa ARetInstruction then
+					ends.add(line.address)
+				end
+			end
+		end
+
+		var addresses_in_memory = new Array[Int]
+		#if not indirect_jumps.is_empty then
+		if has_indirect_jump_sites then
+			# find possible jump destinations
+
+			for line in model.lines do
+				if line isa ADirectiveLine then
+					var dir = line.n_directive
+					if dir isa AAddrssDirective then
+						var dest = dir.n_value.to_i
+						starts.add(dest)
+						addresses_in_memory.add(dest)
 					end
 				end
+			end
+
+			# link indirect jumps to possible destinations
+			#for src in addresses_in_memory do
+			#end
 		end
 
 		# sort breakpoints in order
@@ -108,10 +147,18 @@ class CFG
 				var instr = line.n_instruction
 				if instr isa ABranchInstruction then
 					var op = instr.n_operand
-					var dest = op.n_value.to_i
-					var db = addr_to_blocks[dest]
-					b.successors.add(db)
-					db.predecessors.add(b)
+					if instr.is_indirect then
+						for dest in addresses_in_memory do
+							var db = addr_to_blocks[dest]
+							b.successors.add(db)
+							db.predecessors.add(b)
+						end
+					else
+						var dest = op.n_value.to_i
+						var db = addr_to_blocks[dest]
+						b.successors.add(db)
+						db.predecessors.add(b)
+					end
 				end
 
 				if not instr isa ABrInstruction and
