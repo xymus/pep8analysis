@@ -172,7 +172,7 @@ class CFG
 						b.successors.add(db)
 						db.predecessors.add(b)
 					else
-						print "error: invalid block after {line}"
+						noter.notes.add(new Error(line.location, "invalid line following instruction"))
 					end
 				end
 
