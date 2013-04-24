@@ -243,6 +243,12 @@ redef class AArithmeticInstruction
 		if cr != null and ins.has_key(reg) then
 		# and ins.has_key(mem) then
 			var r = do_arithmetic(ins[reg], cr)
+
+			# this prevents infinite loops
+			# we assume that the max for a student program in 32 000
+			if r.max > 32000 then r.max = 32000
+			if r.min < -32000 then r.min = -32000
+
 			if r != null then
 				outs[reg] = r
 			else
