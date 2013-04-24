@@ -82,6 +82,7 @@ redef class AnalysisManager
 			# Print results
 			var of = new OFStream.open("{dir}/{filename.replace("/","-").replace(".pep",".dot")}")
 			cfg.print_dot(of, true)
+			of.close
 		end
 		if not opt_quiet.value then
 			print_notes
