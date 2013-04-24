@@ -47,44 +47,55 @@ end
 
 abstract class Note
 	var line: nullable Location
+	var to: nullable Location = null
 	var msg: String
+
+	init (line: nullable Location, msg: String)
+	do
+		self.line = line
+		self.msg = msg
+	end
+	init range(from, to: Location, msg: String)
+	do
+		self.line = from
+		self.to = to
+		self.msg = msg
+	end
 
 	fun prefix: String is abstract
 	redef fun to_s do
 		var s = "{prefix}{msg}"
 		var line = line
-		if line != null then s += " at {line}"
+		var to = to
+		if line != null then
+			if to != null then
+				s += " from {line} to {to}"
+			else
+				s += " at {line}"
+			end
+		end
 		return s
 	end
 end
 
 class Warn
 	super Note
-	init (line: nullable Location, msg: String)
-	do
-		self.line = line
-		self.msg = msg
-	end
+	init (line: nullable Location, msg: String) do super
+	init range(from, to: Location, msg: String) do super
 	redef fun prefix do return "Warning: "
 end
 
 class Error
 	super Note
-	init (line: nullable Location, msg: String)
-	do
-		self.line = line
-		self.msg = msg
-	end
+	init (line: nullable Location, msg: String) do super
+	init range(from, to: Location, msg: String) do super
 	redef fun prefix do return "Error:   "
 end
 
 class Fatal
 	super Note
-	init (line: nullable Location, msg: String)
-	do
-		self.line = line
-		self.msg = msg
-	end
+	init (line: nullable Location, msg: String) do super
+	init range(from, to: Location, msg: String) do super
 	redef fun prefix do return "Fatal:   "
 end
 
