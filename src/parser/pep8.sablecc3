@@ -63,7 +63,7 @@ char = (''' [[any - '''] - '\'] ''')
 	| (''' '\' any ''')
 	| (''' '\' 'x' hex_digit hex_digit ''');
 string = '"' str_char* '"';
-hex = '0' 'x' hex_digit+;
+hex = '0' ('x'|'X') hex_digit+;
 
 colon = ':';
 comma = ',';
