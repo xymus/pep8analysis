@@ -223,6 +223,57 @@ redef class AInputInstruction
 	end
 end
 
+redef class AArithmeticInstruction
+	fun do_arithmetic(rv, rm: ValRange): nullable ValRange do return null
+
+	redef fun accept_range_analysis(v, ins, outs)
+	do
+		v.current_range = null
+		visit_all(v)
+
+		if ins != null then outs.recover_with(ins)
+
+		var reg = reg_var
+		#var mem = mem_var
+
+		var cr = v.current_range
+
+		#print mem.as(not null)
+
+		if cr != null and ins.has_key(reg) then
+		# and ins.has_key(mem) then
+			var r = do_arithmetic(ins[reg], cr)
+			if r != null then
+				outs[reg] = r
+			else
+				outs.keys.remove(reg)
+			end
+		else
+			outs.keys.remove(reg)
+		end
+	end
+end
+
+redef class AAddInstruction
+	redef fun do_arithmetic(rv, rm) do return new ValRange(rv.min+rm.min, rv.max+rm.max)
+end
+
+redef class ASubInstruction
+	redef fun do_arithmetic(rv, rm) do return new ValRange(rv.min-rm.max, rv.max-rm.min)
+end
+
+#redef class AAndInstruction
+	#redef fun do_arithmetic(rv, rm) do return null
+#end
+
+#redef class AOrInstruction
+	#redef fun do_arithmetic(rv, rm) do return null
+#end
+
+#redef class ANegInstruction
+	#redef fun do_arithmetic(rv, rm) do return new ValRange(rv.min-rm.max, rv.max-rm.min)
+#end
+
 redef class AAnyOperand
 	redef fun accept_range_analysis(v, ins, outs)
 	do

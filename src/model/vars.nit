@@ -49,6 +49,10 @@ redef class AInstruction
 	fun src_var: nullable Var is abstract
 end
 
+redef class ABinaryInstruction
+	fun mem_var: nullable Var do return n_operand.to_var
+end
+
 redef class ALoadInstruction
 	redef fun def_var do return new RegisterVar(register)
 	redef fun src_var do return n_operand.to_var
@@ -61,6 +65,13 @@ end
 
 redef class AInputInstruction
 	redef fun def_var do return n_operand.to_var
+end
+
+redef class ARegisterSuffixed
+	fun reg_var: Var do return new RegisterVar(register)
+end
+
+redef class AArithmeticInstruction
 end
 
 redef class AOperand
