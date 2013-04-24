@@ -10,23 +10,14 @@ class AnalysisManager
 end
 
 abstract class Noter
-	var main_notes = new Array[Note]
 	var notes = new Array[Note]
 
 	var failed = false
 
 	fun print_notes
 	do
-		if not main_notes.is_empty then
-			print "# Main notes:"
-			for n in main_notes do print n
-		end
 		if not notes.is_empty then
-			if not main_notes.is_empty then
-				print "# Notes:"
-			else
-				print "# Other notes:"
-			end
+			print "# Notes:"
 			for n in notes do print n
 		end
 	end
@@ -64,17 +55,18 @@ abstract class Note
 
 	fun prefix: String is abstract
 	redef fun to_s do
-		var s = "{prefix}{msg}"
+		var s = ""
 		var line = line
 		var to = to
 		if line != null then
 			if to != null then
 				s += " from {line} to {to}"
+				s = "{line.to_file_s}:{line.to_line_s}--{to.to_line_s}; "
 			else
-				s += " at {line}"
+				s = "{line.to_file_s}:{line.to_line_s}; "
 			end
 		end
-		return s
+		return "{prefix}{s}{msg}"
 	end
 end
 
@@ -101,4 +93,17 @@ end
 
 redef class Object
 	protected fun noter: Noter is abstract
+end
+
+redef class Location
+	# "line 5"
+	fun to_line_s: String
+	do
+		return line_start.to_s
+	end
+
+	fun to_file_s: String
+	do
+		return file.filename
+	end
 end
