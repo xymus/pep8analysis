@@ -30,7 +30,7 @@ redef class BasicBlock
 		for line in lines do code_lines.add(line.text)
 		var code = code_lines.join("")
 
-		code = code.replace("\n","\\l").replace("\"","\\\"").replace("\\n","|n").replace("/","\\/")
+		code = code.replace("\n","\\l").replace("\"","\\\"").replace("\\n","|n").replace("/","\\/").replace("\r","")
 		# the last one is a hack
 		return "{dot_node_header}{code}{dot_node_footer}"
 	end
