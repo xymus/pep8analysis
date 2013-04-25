@@ -325,9 +325,32 @@ redef class ALdInstruction
 	do
 		super
 
+		if parent.as(ALine).address == 8 then print "{ins.to_s} r{register}"
 
-		outs.rs[register][0] = 'w'
-		outs.rs[register][1] = 'W'
+		var op = n_operand
+		if op isa AAnyOperand and op.addressing_mode == "i" and
+		   op.n_value.to_i == 0 then
+			outs.rs[register][0] = '0'
+			outs.rs[register][1] = '0'
+			return
+		end
+
+		var mem = mem_var
+		if mem isa MemVar then
+			var content = [ins.memory(mem.index), ins.memory(mem.index+1)]
+			#verify_word(content, "m{mem.index}")
+			outs.rs[register][0] = content[0]
+			outs.rs[register][1] = content[1]
+			#outs.rs[register][0] = 'w'
+
+			if parent.as(ALine).address == 8 then print "bub"
+
+			#outs.rs[register][1] = 'W'
+		else
+			if parent.as(ALine).address == 8 then print "mem not MemVar {mem == null}"
+		end
+
+		if parent.as(ALine).address == 8 then print outs
 	end
 end
 
@@ -335,8 +358,13 @@ redef class ALdbyteInstruction
 	redef fun accept_types_analysis(v, ins, outs)
 	do
 		super
-		# TODO check sourse isa byte
-		outs.rs[register][1] = 'b'
+		# outs.rs[register][1] = 'b'
+		var mem = mem_var
+		if mem isa MemVar then
+			var content = ins.memory(mem.index)
+			#verify_word(content, "m{mem.index}")
+			outs.rs[register][1] = content
+		end
 	end
 end
 
@@ -344,8 +372,14 @@ redef class AStInstruction
 	redef fun accept_types_analysis(v, ins, outs)
 	do
 		super
-		outs.mem[n_operand.n_value.to_i  ] = 'w'
-		outs.mem[n_operand.n_value.to_i+1] = 'W'
+		#outs.mem[n_operand.n_value.to_i  ] = 'w'
+		#outs.mem[n_operand.n_value.to_i+1] = 'W'
+		var mem = mem_var
+		if mem isa MemVar then
+			var content = ins.rs[register]
+			outs.mem[n_operand.n_value.to_i  ] = content[0]
+			outs.mem[n_operand.n_value.to_i+1] = content[1]
+		end
 	end
 end
 
@@ -353,7 +387,12 @@ redef class AStbyteInstruction
 	redef fun accept_types_analysis(v, ins, outs)
 	do
 		super
-		outs.mem[n_operand.n_value.to_i] = 'b'
+		#outs.mem[n_operand.n_value.to_i] = 'b'
+		var mem = mem_var
+		if mem isa MemVar then
+			var content = ins.rs[register]
+			outs.mem[n_operand.n_value.to_i] = content[1]
+		end
 	end
 end
 
