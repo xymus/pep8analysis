@@ -78,6 +78,10 @@ redef class AOperand
 	fun to_var: nullable Var is abstract
 end
 
+redef class AImmediateOperand
+	redef fun to_var do return null
+end
+
 redef class AAnyOperand
 	fun addressing_mode: String do return n_id.text
 	redef fun to_var

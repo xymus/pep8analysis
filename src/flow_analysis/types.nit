@@ -1,3 +1,5 @@
+import pipeline
+
 import framework
 import range
 
@@ -66,10 +68,6 @@ class TypesAnalysis
 	redef fun line_out(line) do return line.types_out
 	redef fun line_in=(line, v) do line.types_in = v
 	redef fun line_out=(line, v) do line.types_out = v
-
-	fun verify_change( from, to: Char )
-	do
-	end
 end
 
 # Types 3rd step, verification
@@ -107,6 +105,7 @@ class TypesMap
 	#  'W' word end
 	#  'c' executable code
 	#  'a' ascii
+	#  'A' address
 
 	# registers
 	var rs = new HashMap[Char,Array[T]]
@@ -127,7 +126,11 @@ class TypesMap
 		bs['C'] = 'u'
 	end
 
-	fun memory(a: Int): T do return mem[a]
+	fun memory(a: Int): T
+	do
+		if mem.has_key(a) then return mem[a]
+		return 'u'
+	end
 	fun memory=(a: Int, v: T) do mem[a] = v
 
 	fun copy_to(o: TypesMap)
@@ -142,24 +145,58 @@ class TypesMap
 	do
 		var tm = new TypesMap
 		for k,v in rs do for b in [0..1] do
-			var v1 = tm.rs[k][b]
+			var v1 = o.rs[k][b]
 			var v2 = rs[k][b]
 			if v1 == v2 then
 				tm.rs[k][b] = v1
 			else tm.rs[k][b] = 't'
 		end
+
 		for k,v in bs do o.bs[k] = v
 		for f in stack do o.stack.add(f)
-		for k, v in mem do o.mem[k] = v
+
+		for k, v in mem do if o.mem.has_key(k) then
+			if v == o.mem[k] then
+				tm.mem[k] = v
+			else tm.mem[k] = 't'
+		else tm.mem[k] = 't'
+		for k, v in o.mem do if not tm.mem.has_key(k) then
+			tm.mem[k] = 't'
+		end
 		return tm
 	end
 
 	redef fun to_s
 	do
-		var s = "regs:\{{rs.join(":",",")}\}\n"
-		s = "{s}bits:\{{bs.join(":",",")}\}\n"
-		s = "stack:\{{stack.join(",")}\}\n"
-		s = "mem:\{{mem.join(":",",")}\}"
+		var s = "regs:\{{rs.join(",",":")}\}, "
+		#s = "{s}bits:\{{bs.join(",",":")}\}, "
+		#s = "{s}stack:\{{stack.join(",")}\}, "
+
+		var blocks = new Array[String]
+		var block_begin: nullable Int = null
+		var block_end = 0
+		var block_type = ' '
+		for a in mem.keys.to_a.sort_filter do
+			var t = mem[a]
+			if block_begin != null and block_type != t then
+				if block_begin == block_end then
+					blocks.add("{block_begin}:{block_type}")
+				else blocks.add("[{block_begin}..{block_end}]:{block_type}")
+				block_begin = null
+			end
+
+			if block_begin == null then block_begin = a
+
+			block_type = t
+			block_end = a
+		end
+		if block_begin != null then
+			if block_begin == block_end then
+				blocks.add("{block_begin}:{block_type}")
+			else blocks.add("[{block_begin}..{block_end}]:{block_type}")
+		end
+		s = "{s}mem:\{{blocks.join(",")}\}"
+
 		return s
 	end
 
@@ -171,6 +208,7 @@ class TypesMap
 		if stack.length != o.stack.length then return false
 		for s in [0..stack.length[ do if o.stack[s] != stack[s] then return false
 
+		if mem.length != o.mem.length then return false
 		for k,v in mem do if not o.mem.has_key(k) or o.mem[k] != v then return false
 
 		return true
@@ -185,6 +223,25 @@ end
 redef class BasicBlock
 	var backup_types_in: nullable TypesMap = null
 	var backup_types_out: nullable TypesMap = null
+
+	redef fun dot_node_header
+	do
+		if lines.is_empty then
+			if backup_types_in != null then
+				return "{super}-- types = \{{backup_types_in.to_s}\}\\l"
+			end
+		else if lines.first.types_in != null then return  "{super}-- types = \{{lines.first.types_in.to_s}\}\\l"
+		return super
+	end
+	redef fun dot_node_footer
+	do
+		if lines.is_empty then
+			if backup_types_out != null then
+				return "{super}-- types = \{{backup_types_out.to_s}\}\\l"
+			end
+		else if lines.first.types_out != null then return  "{super}-- types = \{{lines.last.types_out.to_s}\}\\l"
+		return super
+	end
 end
 
 redef class ANode
@@ -203,7 +260,26 @@ redef class AInstruction
 	# set the memory for the line as being code
 	redef fun accept_types_init_analysis(v, set)
 	do
-		set.memory(v.current_line.address) = 'c'
+		for i in [0..4[ do set.memory(v.current_line.address+i) = 'c'
+	end
+
+	fun verify_word(content: Array[Char], mem_str: String)
+	do
+		if content.count('u') == 2 then
+			# uninitialized data
+			noter.notes.add(new Warn(location, "use of uninitialized values ({mem_str}: {content})"))
+		else if content[0] == 'W' or content[1] == 'w' then
+			noter.notes.add(new Warn(location, "use of deorganized word ({mem_str}: {content})"))
+		else if (content[0] == 'w' and content[1] != 'W') or (content[1] == 'W' and content[0] != 'w') then
+			noter.notes.add(new Warn(location, "use of partial word ({mem_str}: {content})"))
+		else if content.count('u') == 1 then
+			# partially unitialized, a bad sign
+			noter.notes.add(new Warn(location, "use of partially uninitialized values ({mem_str}: {content})"))
+		else if content[0] == '0' and content[1] == 'b' then # OK!
+		else if content[0] == '0' and content[1] == '0' then # OK!
+		else if content[0] != 'w' and content[1] != 'W' then
+			noter.notes.add(new Warn(location, "expected word ({mem_str}: {content})"))
+		end
 	end
 end
 
@@ -230,7 +306,7 @@ redef class AAsciiDirective
 	do
 		# TODO AOperand::data
 		#for i in [0..v.data.len[ do
-			#set.memory(v.current_line.address+i) = 'a'
+		set.memory(v.current_line.address) = 'a'
 		#end
 	end
 end
@@ -238,8 +314,7 @@ end
 redef class AAddrssDirective
 	redef fun accept_types_init_analysis(v, set)
 	do
-		# TODO change
-		set.memory(v.current_line.address) = 'b'
+		set.memory(v.current_line.address) = 'A'
 	end
 end
 
@@ -250,8 +325,6 @@ redef class ALdInstruction
 	do
 		super
 
-		v.verify_change(ins.rs[register][0],'w')
-		v.verify_change(ins.rs[register][1],'W')
 
 		outs.rs[register][0] = 'w'
 		outs.rs[register][1] = 'W'
@@ -292,21 +365,113 @@ redef class AShiftInstruction
 end
 
 redef class AArithmeticInstruction
+	redef fun accept_types_analysis(v, ins, outs)
+	do
+		super
+		outs.rs[register][0] = 'w'
+		outs.rs[register][1] = 'W'
+	end
+
 	redef fun accept_types_checker(v)
 	do
-		if v.current_line.types_in == null then return
+		var ins = v.current_line.types_in
+		if ins == null then return
 
-		var content = v.current_line.types_in.as(not null).rs[register]
-		if content.count('u') == 2 then
-			# uninitialized data
-			noter.notes.add(new Warn(location, "use of uninitialized values (reg: {content})"))
-		else if content[0] == 'W' or content[1] == 'w' then
-			noter.notes.add(new Warn(location, "use of deorganized word (reg: {content})"))
-		else if (content[0] == 'w' and content[1] != 'W') or (content[1] == 'W' and content[0] != 'w') then
-			noter.notes.add(new Warn(location, "use of partial word (reg: {content})"))
-		else if content.count('u') == 1 then
-			# partially unitialized, a bad sign
-			noter.notes.add(new Warn(location, "use of partially uninitialized values (reg: {content})"))
+		# register
+		var content = ins.rs[register]
+		verify_word(content, "r{register}")
+
+		# memory source
+		var mem = mem_var
+		if mem isa MemVar then
+			content = [ins.memory(mem.index), ins.memory(mem.index+1)]
+			verify_word(content, "m{mem.index}")
+		end
+	end
+end
+
+redef class ADecoInstruction
+	redef fun accept_types_checker(v)
+	do
+		var ins = v.current_line.types_in
+		if ins == null then return
+
+		var mem = mem_var
+		if mem isa MemVar then
+			var content = [ins.memory(mem.index), ins.memory(mem.index+1)]
+			verify_word(content, "m{mem.index}")
+		end
+	end
+end
+
+redef class ADeciInstruction
+	redef fun accept_types_analysis(v, ins, outs)
+	do
+		super
+		outs.mem[n_operand.n_value.to_i  ] = 'w'
+		outs.mem[n_operand.n_value.to_i+1] = 'W'
+	end
+end
+
+redef class AOutputInstruction
+	fun verify_ascii(content: Char)
+	do
+		if content == 'u' then
+			noter.notes.add(new Warn(location, "use of uninitialized values"))
+		else if content != 'a' then
+			noter.notes.add(new Warn(location, "use of non-ascii types ({content})"))
+		end
+	end
+end
+
+redef class ACharoInstruction
+	redef fun accept_types_checker(v)
+	do
+		var ins = v.current_line.types_in
+		if ins == null then return
+
+		var mem = mem_var
+		if mem isa MemVar then
+			var content = ins.memory(mem.index)
+			verify_ascii(content)
+		end
+	end
+end
+
+redef class AStroInstruction
+	redef fun accept_types_checker(v)
+	do
+		var ins = v.current_line.types_in
+		if ins == null then return
+
+		var mem = mem_var
+		if mem isa MemVar then
+			var content = ins.memory(mem.index)
+			verify_ascii(content)
+		end
+	end
+end
+
+redef class AChariInstruction
+	redef fun accept_types_analysis(v, ins, outs)
+	do
+		super
+		outs.mem[n_operand.n_value.to_i] = 'a'
+	end
+end
+
+redef class ABranchInstruction
+	redef fun accept_types_checker(v)
+	do
+		var ins = v.current_line.types_in
+		if ins == null then return
+
+		var mem = mem_var
+		if mem isa MemVar then
+			var content = ins.memory(mem.index)
+			if content != 'A' then
+				noter.notes.add(new Warn(location, "use of non-address data for branching, got: {content}"))
+			end
 		end
 	end
 end
