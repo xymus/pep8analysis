@@ -217,7 +217,7 @@ redef class AInputInstruction
 		var def = def_var # mem
 
 		if def != null and outs.has_key(def) then
-			outs.remove(def)
+			outs.keys.remove(def)
 		end
 
 	end
