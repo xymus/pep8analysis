@@ -11,7 +11,7 @@ redef class AnalysisManager
 		var range_init_analysis = new InitRangeAnalysis(ast)
 		range_init_analysis.analyze(ast)
 
-		cfg.start.ranges_out = range_init_analysis.set
+		cfg.start.backup_ranges_out = range_init_analysis.set
 
 		var range_analysis = new RangeAnalysis #(range_init_analysis.set)
 		range_analysis.analyze(cfg)
@@ -19,7 +19,7 @@ redef class AnalysisManager
 end
 
 class RangeAnalysis
-	super FlowAnalysis[RangeMap]
+	super FineFlowAnalysis[RangeMap]
 
 	var current_range: nullable ValRange = null
 	var current_var: nullable Var = null
@@ -27,7 +27,7 @@ class RangeAnalysis
 	redef fun empty_set do return new RangeMap
 	redef fun is_forward do return true
 
-	init #(start_outs: RangeMap)
+	init
 	do
 		super
 	end
@@ -57,10 +57,15 @@ class RangeAnalysis
 		return n
 	end
 
-	redef fun in_set(bb) do return bb.ranges_in
-	redef fun out_set(bb) do return bb.ranges_out
-	redef fun in_set=(bb, s) do bb.ranges_in = s
-	redef fun out_set=(bb, s) do bb.ranges_out = s
+	redef fun line_in(line) do return line.ranges_in
+	redef fun line_out(line) do return line.ranges_out
+	redef fun line_in=(line, s) do line.ranges_in = s
+	redef fun line_out=(line, s) do line.ranges_out = s
+
+	redef fun backup_in(bb) do return bb.backup_ranges_in
+	redef fun backup_out(bb) do return bb.backup_ranges_out
+	redef fun backup_in=(bb, s) do bb.backup_ranges_in = s
+	redef fun backup_out=(bb, s) do bb.backup_ranges_out = s
 end
 
 class InitRangeAnalysis
@@ -80,20 +85,29 @@ class InitRangeAnalysis
 	end
 end
 
-redef class BasicBlock
+redef class ALine
 	var ranges_in: nullable RangeMap = null
 	var ranges_out: nullable RangeMap = null
+end
+
+redef class BasicBlock
+	var backup_ranges_in: nullable RangeMap = null
+	var backup_ranges_out: nullable RangeMap = null
 
 	redef fun dot_node_header
 	do
-		if ranges_in != null then
-			return "{super}-- ranges in = {ranges_in.as(not null)}\\l"
+		if backup_ranges_in != null then
+			return "{super}-- ranges in = {backup_ranges_in.as(not null)}\\l"
+		else if not lines.is_empty and lines.first.ranges_in != null then
+			return "{super}-- ranges in = {lines.first.ranges_in.as(not null)}\\l"
 		else return super
 	end
 	redef fun dot_node_footer
 	do
-		if ranges_out != null then
-			return "{super}-- ranges out = {ranges_out.as(not null)}\\l"
+		if backup_ranges_out != null then
+			return "{super}-- ranges out = {backup_ranges_out.as(not null)}\\l"
+		else if not lines.is_empty and lines.last.ranges_out != null then
+			return "{super}-- ranges out = {lines.last.ranges_out.as(not null)}\\l"
 		else return super
 	end
 end
@@ -124,6 +138,8 @@ class ValRange
 
 	redef fun ==(o) do return o != null and o isa ValRange and
 		min == o.min and max == o.max
+
+	fun ponctual: Bool do return min == max
 end
 class RangeMap
 	super HashMap[Var, ValRange]
