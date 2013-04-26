@@ -285,13 +285,16 @@ class ARettrInstruction
 	init from( src ) do super
 end
 
-class AMovspaInstruction
+abstract class AMovInstruction
 	super ARichUnaryInstruction
 	init from( src ) do super
 end
-
+class AMovspaInstruction
+	super AMovInstruction
+	init from( src ) do super
+end
 class AMovflgaInstruction
-	super ARichUnaryInstruction
+	super AMovInstruction
 	init from( src ) do super
 end
 
