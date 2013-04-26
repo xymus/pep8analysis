@@ -21,6 +21,6 @@ redef class AAddrssDirective
 	redef fun size do return 2
 end
 redef class AEquateDirective
-	redef fun size do return 0 # TODO what is this?
+	redef fun size do return 0
 end
 

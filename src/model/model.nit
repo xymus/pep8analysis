@@ -33,12 +33,20 @@ class Model
 			if label_decl != null then
 				var lbl = label_decl.n_id
 				var label_name = lbl.text
-				labels_to_address[label_name] = offset
-				lbl.labels_to_address[label_name] = offset
+
+				if line isa ADirectiveLine and line.n_directive isa AEquateDirective then
+					# .EQUATE
+					labels_to_address[label_name] = line.n_directive.as(AEquateDirective).n_value.to_i
+					lbl.labels_to_address[label_name] = line.n_directive.as(AEquateDirective).n_value.to_i
+				else
+					labels_to_address[label_name] = offset
+					lbl.labels_to_address[label_name] = offset
+				end
 			end
 
 			line.address = offset
-			if line isa ANonEmptyLine then
+
+			if line isa ANonEmptyLine and line.size > 0 then
 				lines.add( line )
 				address_to_line[offset] = line
 			end
@@ -46,8 +54,10 @@ class Model
 		end
 
 		for lbl,address in labels_to_address do
-			var line = address_to_line[address]
-			labels_to_line[lbl] = line
+			if address_to_line.has_key(address) then
+				var line = address_to_line[address]
+				labels_to_line[lbl] = line
+			end
 		end
 	end
 end
