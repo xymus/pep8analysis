@@ -66,6 +66,7 @@ class FlowAnalysis[S]
 
 			if block == cfg.finish then continue
 
+			var old_out = out_set(block)
 			for line in block.lines do
 				self.current_in = current_in.as(not null)
 				self.current_out = empty_set
@@ -77,7 +78,6 @@ class FlowAnalysis[S]
 				#self.current_in = current_in
 			end
 
-			var old_out = out_set(block)
 			current_out = self.current_out
 			if old_out != current_out then
 				out_set(block) = current_out.as(not null)
