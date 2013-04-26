@@ -62,7 +62,12 @@ redef class ALine
 	redef fun text
 	do
 		var text = super
-		return "{to_s}: {text}"
+		var size = size
+		if size > 0 then
+			return "L{location.to_line_s} (m{address}..{address+size}): {text}"
+		else
+			return "L{location.to_line_s}: {text}"
+		end
 	end
 end
 redef class AInstructionLine
