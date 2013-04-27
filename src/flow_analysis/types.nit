@@ -184,6 +184,16 @@ class TypesMap
 		return 't'
 	end
 
+	fun label_at(index: Int): nullable String
+	do
+		var ltl = noter.model.address_to_line
+		if ltl.has_key(index) then
+			var line = ltl[index]
+			return line.lbl
+		end
+		return null
+	end
+
 	redef fun to_s
 	do
 		var s = "regs:\{{rs.join(",",":")}\}, "
@@ -197,9 +207,14 @@ class TypesMap
 		for a in mem.keys.to_a.sort_filter do
 			var t = mem[a]
 			if block_begin != null and (block_type != t or block_end != a-1) then
+				var lbl = label_at(block_begin)
+				if lbl != null then
+					lbl = "{lbl}@"
+				else lbl = ""
+
 				if block_begin == block_end then
-					blocks.add("{block_begin}:{block_type}")
-				else blocks.add("[{block_begin}..{block_end}]:{block_type}")
+					blocks.add("{lbl}{block_begin}:{block_type}")
+				else blocks.add("{lbl}[{block_begin}..{block_end}]:{block_type}")
 				block_begin = null
 			end
 
@@ -209,9 +224,14 @@ class TypesMap
 			block_end = a
 		end
 		if block_begin != null then
+			var lbl = label_at(block_begin)
+			if lbl != null then
+				lbl = "{lbl}@"
+			else lbl = ""
+
 			if block_begin == block_end then
-				blocks.add("{block_begin}:{block_type}")
-			else blocks.add("[{block_begin}..{block_end}]:{block_type}")
+				blocks.add("{lbl}{block_begin}:{block_type}")
+			else blocks.add("{lbl}[{block_begin}..{block_end}]:{block_type}")
 		end
 		s = "{s}mem:\{{blocks.join(",")}\}"
 
@@ -320,6 +340,7 @@ redef class AInstruction
 		else if content.count('t') == 2 then # uninitialized data
 			noter.notes.add(new Warn(location, "use of values from unknown source in {mem_str}, got {long_content_name(content)}"))
 		else if content[0] == '0' and content[1] == 'b' then # byte only OK!
+		else if content[0] == '0' and content[1] == 'l' then # ASCII only OK?
 		else if content[0] == '0' and content[1] == '0' then # all zero OK!
 		else if content[0] == 'a' and content[1] == 'A' then # address OK!
 		else if content[0] != 'w' and content[1] != 'W' then
