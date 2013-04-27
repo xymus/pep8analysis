@@ -1,9 +1,19 @@
 import pipeline
+import opts
 
 import framework
 import range
 
 redef class AnalysisManager
+	var opt_report_unknown_types = new OptionBool("Report unknown types", "--report-types-top")
+	fun report_unknown_types: Bool do return opt_report_unknown_types.value
+
+	redef init
+	do
+		super
+		opts.add_option(opt_report_unknown_types)
+	end
+
 	fun do_types_analysis(ast: AListing, cfg: CFG)
 	do
 		# find types at program init
@@ -338,7 +348,9 @@ redef class AInstruction
 		#else if content.count('u') == 1 then # partially unitialized, a bad sign
 			#manager.notes.add(new Warn(location, "use of partially uninitialized values in {mem_str}, got {long_content_name(content)}"))
 		else if content.count('t') == 2 then # uninitialized data
-			manager.notes.add(new Warn(location, "use of values from unknown source in {mem_str}, got {long_content_name(content)}"))
+			if manager.report_unknown_types then
+				manager.notes.add(new Warn(location, "use of values from unknown source in {mem_str}, got {long_content_name(content)}"))
+			end
 		else if content[0] == '0' and content[1] == 'b' then # byte only OK!
 		else if content[0] == '0' and content[1] == 'l' then # ASCII only OK?
 		else if content[0] == '0' and content[1] == '0' then # all zero OK!
