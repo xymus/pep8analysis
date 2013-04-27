@@ -5,62 +5,21 @@ import cfg_base
 redef class BasicBlock
 	private var cfg_sanity_verified = false
 
-	private fun verify_cfg_sanity_code(v: Noter)
+	# reports data in code
+	private fun verify_cfg_sanity_code(v: Noter, data_in_code: Array[ALine])
 	do
-		var first_wrong_directive: nullable ALine = null
-		var last_wrong_directive: nullable ALine = null
-		for line in lines do
-			if line isa ADirectiveLine then
-				if first_wrong_directive == null then first_wrong_directive = line
-				last_wrong_directive = line
-			else if first_wrong_directive != null then
-				# complete block
-				if first_wrong_directive == last_wrong_directive then
-					v.notes.add(new Error(last_wrong_directive.location, "Data in program flow"))
-				else
-					v.notes.add(new Error.range(first_wrong_directive.location, last_wrong_directive.location, "Data block in program flow"))
-				end
-
-				first_wrong_directive = null
-			end
-		end
-
-		if first_wrong_directive != null then
-			if first_wrong_directive == last_wrong_directive then
-				v.notes.add(new Error(last_wrong_directive.location, "Data in program flow"))
-			else
-				v.notes.add(new Error.range(first_wrong_directive.location, last_wrong_directive.location, "Data block in program flow"))
-			end
+		for line in lines do if line isa ADirectiveLine then
+			data_in_code.add(line)
 		end
 
 		cfg_sanity_verified = true
 	end
 
-	private fun verify_cfg_sanity_data(v: Noter)
+	# reports code in data
+	private fun verify_cfg_sanity_data(v: Noter, dead_lines: Array[ALine])
 	do
-		var first_wrong_instr: nullable ALine = null
-		var last_wrong_instr: nullable ALine = null
-		for line in lines do
-			if line isa AInstructionLine then
-				if first_wrong_instr == null then first_wrong_instr = line
-				last_wrong_instr = line
-			else if first_wrong_instr != null then
-				if first_wrong_instr == last_wrong_instr then
-					v.notes.add(new Error(last_wrong_instr.location, "Code is unreachable"))
-				else
-					v.notes.add(new Error.range(first_wrong_instr.location, last_wrong_instr.location, "Code block is unreachable"))
-				end
-
-				first_wrong_instr = null
-			end
-		end
-
-		if first_wrong_instr != null then
-			if first_wrong_instr == last_wrong_instr then
-				v.notes.add(new Error(last_wrong_instr.location, "Code is unreachable"))
-			else
-				v.notes.add(new Error.range(first_wrong_instr.location, last_wrong_instr.location, "Code block is unreachable"))
-			end
+		for line in lines do if line isa AInstructionLine then
+			dead_lines.add(line)
 		end
 
 		cfg_sanity_verified = true
@@ -71,18 +30,59 @@ redef class AnalysisManager
 	fun verify_cfg_sanity(cfg: CFG)
 	do
 		# verify executable code
-		verify_cfg_sanity_recursively_code( cfg.start )
+		var executed_data = new Array[ALine]
+		verify_cfg_sanity_recursively_code( cfg.start, executed_data )
 
 		# verify data or dead code
+		var dead_code = new Array[ALine]
 		for b in cfg.blocks do if not b.cfg_sanity_verified then
-			b.verify_cfg_sanity_data(self)
+			b.verify_cfg_sanity_data(self, dead_code)
 		end
+
+		group( dead_code, "unreachable instructions", false )
+		group( executed_data, "data in program flow", true )
 	end
 
-	fun verify_cfg_sanity_recursively_code(b: BasicBlock)
+	fun verify_cfg_sanity_recursively_code(b: BasicBlock, executed_data: Array[ALine])
 	do
-		if b.cfg_sanity_verified then return
-		b.verify_cfg_sanity_code(self)
-		for s in b.successors do verify_cfg_sanity_recursively_code( s )
+		if b.cfg_sanity_verified then return # is code
+
+		b.verify_cfg_sanity_code(self,executed_data)
+		for s in b.successors do verify_cfg_sanity_recursively_code( s, executed_data )
 	end
+
+	private fun group(lines: Array[ALine], msg: String, error: Bool)
+	do
+		lines = lines.sort_filter.to_a
+		var len = lines.length
+		var first: nullable ALine = null
+		for i in [0..len[ do
+			var line = lines[i]
+			if first == null then
+				first = line
+			end
+			if i == len-1 or line.address + line.size != lines[i+1].address then
+				if error then
+					if first == line then
+						manager.notes.add(new Error(first.location, msg))
+					else
+						manager.notes.add(new Error.range(first.location, line.location, msg))
+					end
+				else
+					if first == line then
+						manager.notes.add(new Error(first.location, msg))
+					else
+						manager.notes.add(new Warn.range(first.location, line.location, msg))
+					end
+				end
+				first = null
+			end
+		end
+	end
+end
+
+redef class ALine
+	super Comparable
+	redef type OTHER: ALine
+	redef fun <=>(o) do return address <=> o.address
 end
