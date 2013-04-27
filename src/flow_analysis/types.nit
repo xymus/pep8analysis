@@ -475,6 +475,19 @@ redef class AStInstruction
 			outs.mem[n_operand.n_value.to_i+1] = content[1]
 		end
 	end
+
+	redef fun accept_types_checker(v)
+	do
+		var ins = v.current_line.types_in
+		var mem = mem_var
+		if mem isa MemVar and ins != null then
+			var content = ins.rs[register]
+			if ins.memory(n_operand.n_value.to_i) == 'c' or
+			  	ins.memory(n_operand.n_value.to_i) == 'c' then
+				manager.notes.add(new Warn(location, "overwriting code at {mem} with {long_content_name(content)}"))
+			end
+		end
+	end
 end
 
 redef class AStbyteInstruction
@@ -486,6 +499,18 @@ redef class AStbyteInstruction
 		if mem isa MemVar then
 			var content = ins.rs[register]
 			outs.mem[n_operand.n_value.to_i] = content[1]
+		end
+	end
+
+	redef fun accept_types_checker(v)
+	do
+		var ins = v.current_line.types_in
+		var mem = mem_var
+		if mem isa MemVar and ins != null then
+			var content = ins.rs[register]
+			if ins.memory(n_operand.n_value.to_i) == 'c' then
+				manager.notes.add(new Warn(location, "overwriting code at {mem} with {long_data_name(content[1])}"))
+			end
 		end
 	end
 end
