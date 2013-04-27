@@ -278,17 +278,21 @@ redef class ASubInstruction
 	redef fun do_arithmetic(rv, rm) do return new ValRange(rv.min-rm.max, rv.max-rm.min)
 end
 
-#redef class AAndInstruction
-	#redef fun do_arithmetic(rv, rm) do return null
-#end
+redef class ANegInstruction
+	redef fun accept_range_analysis(v, ins, outs)
+	do
+		v.current_range = null
+		visit_all(v)
 
-#redef class AOrInstruction
-	#redef fun do_arithmetic(rv, rm) do return null
-#end
+		if ins != null then outs.recover_with(ins)
 
-#redef class ANegInstruction
-	#redef fun do_arithmetic(rv, rm) do return new ValRange(rv.min-rm.max, rv.max-rm.min)
-#end
+		var reg = reg_var
+		if ins.has_key(reg) then
+			var rm = ins[reg]
+			outs[reg] = new ValRange(-rm.max, -rm.min)
+		end
+	end
+end
 
 redef class AAnyOperand
 	redef fun accept_range_analysis(v, ins, outs)
@@ -310,6 +314,22 @@ redef class AAnyOperand
 		end
 
 		v.current_range = null
+	end
+end
+
+redef class AMovInstruction
+	# Almost impossible to guess so, topped
+	redef fun accept_range_analysis(v, ins, outs)
+	do
+		v.current_range = null
+		visit_all(v)
+
+		if ins != null then outs.recover_with(ins)
+
+		var reg = new RegisterVar('A')
+		if outs.has_key(reg) then
+			outs.keys.remove(reg)
+		end
 	end
 end
 
