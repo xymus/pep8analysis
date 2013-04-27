@@ -34,7 +34,7 @@ redef class AnalysisManager
 				cfg.watchdog = 0
 				var to_link = new List[BasicBlock]
 				if not cfg.link_ret_to_calls(cfg.start, to_link, new List[BasicBlock], 0) then
-					noter.fatal_error(model.lines.first, "failed to organize function calls")
+					manager.fatal_error(model.lines.first, "failed to organize function calls")
 				end
 			end
 		end

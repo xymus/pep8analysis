@@ -7,7 +7,7 @@ end
 redef class ALabelValue
 	redef fun to_i do
 		if not n_id.labels_to_address.has_key(n_id.text) then
-			noter.fatal_error( self, "Label {n_id.text} used but not defined.")
+			manager.fatal_error( self, "Label {n_id.text} used but not defined.")
 			return 0
 		else
 			return n_id.labels_to_address[n_id.text]

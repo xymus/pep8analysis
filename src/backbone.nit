@@ -87,7 +87,7 @@ class Fatal
 end
 
 redef class Object
-	protected fun noter: AnalysisManager is abstract
+	protected fun manager: AnalysisManager is abstract
 end
 
 redef class Location

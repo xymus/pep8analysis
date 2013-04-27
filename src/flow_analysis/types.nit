@@ -186,7 +186,7 @@ class TypesMap
 
 	fun label_at(index: Int): nullable String
 	do
-		var ltl = noter.model.address_to_line
+		var ltl = manager.model.address_to_line
 		if ltl.has_key(index) then
 			var line = ltl[index]
 			return line.lbl
@@ -329,22 +329,22 @@ redef class AInstruction
 	do
 		#if content.count('u') == 2 then
 			# uninitialized data
-			#noter.notes.add(new Error(location, "use of uninitialized values in {mem_str}, got {long_content_name(content)}"))
+			#manager.notes.add(new Error(location, "use of uninitialized values in {mem_str}, got {long_content_name(content)}"))
 		if content[0] == 'W' or content[1] == 'w' then
-			noter.notes.add(new Warn(location, "use of deorganized word in {mem_str}, got {long_content_name(content)}"))
+			manager.notes.add(new Warn(location, "use of deorganized word in {mem_str}, got {long_content_name(content)}"))
 		#else if (content[0] == 'w' and content[1] != 'W') or (content[1] == 'W' and content[0] != 'w') then
 		else if (content[0] == 'w') != (content[1] == 'W') then
-			noter.notes.add(new Warn(location, "use of partial word in {mem_str}, got {long_content_name(content)}"))
+			manager.notes.add(new Warn(location, "use of partial word in {mem_str}, got {long_content_name(content)}"))
 		#else if content.count('u') == 1 then # partially unitialized, a bad sign
-			#noter.notes.add(new Warn(location, "use of partially uninitialized values in {mem_str}, got {long_content_name(content)}"))
+			#manager.notes.add(new Warn(location, "use of partially uninitialized values in {mem_str}, got {long_content_name(content)}"))
 		else if content.count('t') == 2 then # uninitialized data
-			noter.notes.add(new Warn(location, "use of values from unknown source in {mem_str}, got {long_content_name(content)}"))
+			manager.notes.add(new Warn(location, "use of values from unknown source in {mem_str}, got {long_content_name(content)}"))
 		else if content[0] == '0' and content[1] == 'b' then # byte only OK!
 		else if content[0] == '0' and content[1] == 'l' then # ASCII only OK?
 		else if content[0] == '0' and content[1] == '0' then # all zero OK!
 		else if content[0] == 'a' and content[1] == 'A' then # address OK!
 		else if content[0] != 'w' and content[1] != 'W' then
-			noter.notes.add(new Warn(location, "expected word in {mem_str}, got {long_content_name(content)}"))
+			manager.notes.add(new Warn(location, "expected word in {mem_str}, got {long_content_name(content)}"))
 		end
 	end
 
@@ -553,9 +553,9 @@ redef class AOutputInstruction
 	fun verify_ascii(content: Char)
 	do
 		if content == 'u' then
-			noter.notes.add(new Warn(location, "use of uninitialized values"))
+			manager.notes.add(new Warn(location, "use of uninitialized values"))
 		else if content != 'l' then
-			noter.notes.add(new Warn(location, "use of non-ascii types ({content})"))
+			manager.notes.add(new Warn(location, "use of non-ascii types ({content})"))
 		end
 	end
 end
@@ -606,7 +606,7 @@ redef class ABranchInstruction
 		if mem isa MemVar then
 			var content = [ins.memory(mem.index), ins.memory(mem.index+1)]
 			if content[0] != 'a' or content[1] != 'A' then
-				noter.notes.add(new Warn(location, "use of non-address data for branching, got {long_content_name(content)}"))
+				manager.notes.add(new Warn(location, "use of non-address data for branching, got {long_content_name(content)}"))
 			end
 		end
 	end

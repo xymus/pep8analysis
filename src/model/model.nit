@@ -103,7 +103,7 @@ end
 
 redef class MemVar
 	redef fun to_s do
-		var ltl = noter.model.address_to_line
+		var ltl = manager.model.address_to_line
 		if ltl.has_key(index) then
 			var line = ltl[index]
 			var lbl = line.lbl

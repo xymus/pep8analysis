@@ -45,7 +45,7 @@ class CFG
 					if instr.is_indirect then
 						#indirect_jump_sites.add(line.address)
 						has_indirect_jump_sites = true
-						noter.notes.add(new Warn(instr.location, "use of indirect jumps, the CFG may be wrong"))
+						manager.notes.add(new Warn(instr.location, "use of indirect jumps, the CFG may be wrong"))
 					else
 						var op = instr.n_operand
 						var dest = op.n_value.to_i
@@ -172,7 +172,7 @@ class CFG
 						b.successors.add(db)
 						db.predecessors.add(b)
 					else
-						noter.notes.add(new Error(line.location, "invalid line following instruction"))
+						manager.notes.add(new Error(line.location, "invalid line following instruction"))
 					end
 				end
 
@@ -343,7 +343,7 @@ class CFG
 
 				else if instr isa ARetInstruction then
 						if to_link.is_empty then
-							noter.notes.add( new Error(instr.location,"no CALL can be linked to return") )
+							manager.notes.add( new Error(instr.location,"no CALL can be linked to return") )
 							return false
 						else
 							var caller = to_link.pop
