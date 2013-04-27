@@ -13,7 +13,7 @@ redef class AnalysisManager
 
 		cfg.start.backup_ranges_out = range_init_analysis.set
 
-		var range_analysis = new RangeAnalysis #(range_init_analysis.set)
+		var range_analysis = new RangeAnalysis
 		range_analysis.analyze(cfg)
 	end
 end
@@ -27,10 +27,7 @@ class RangeAnalysis
 	redef fun empty_set do return new RangeMap
 	redef fun is_forward do return true
 
-	init
-	do
-		super
-	end
+	init do super
 
 	redef fun visit(node)
 	do
@@ -250,11 +247,8 @@ redef class AArithmeticInstruction
 		if ins != null then outs.recover_with(ins)
 
 		var reg = reg_var
-		#var mem = mem_var
 
 		var cr = v.current_range
-
-		#print mem.as(not null)
 
 		if cr != null and ins.has_key(reg) then
 		# and ins.has_key(mem) then
@@ -262,7 +256,7 @@ redef class AArithmeticInstruction
 
 			if r != null then
 				# this prevents infinite loops
-				# we assume that the max for a student program in 32 000
+				# we assume that the max for a student program in 999
 				if r.max > 999 then r.max = 999
 				if r.min < -999 then r.min = -999
 
