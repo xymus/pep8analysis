@@ -87,7 +87,7 @@ class Fatal
 end
 
 redef class Object
-	protected fun noter: Noter is abstract
+	protected fun noter: AnalysisManager is abstract
 end
 
 redef class Location

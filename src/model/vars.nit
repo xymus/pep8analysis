@@ -38,7 +38,8 @@ class MemVar
 
 	var index: Int
 
-	redef fun to_s do return "m{index}"
+	# need Object::AnalysisManager
+	#redef fun to_s is abstract
 
 	redef fun ==(o) do return o isa MemVar and index == o.index
 	redef fun hash do return 1024 + index.hash

@@ -6,9 +6,11 @@ import operands
 import vars
 
 redef class AnalysisManager
+	var model: nullable Model = null
 	fun build_model(ast: AListing): Model
 	do
 		var model = new Model(ast)
+		self.model = model
 		return model
 	end
 end
@@ -79,6 +81,15 @@ redef class ALine
 			return "L{location.to_line_s}: {text}"
 		end
 	end
+
+	fun lbl: nullable String
+	do
+		var lbl_decl = n_label_decl
+		if lbl_decl != null then
+			var lbl = lbl_decl.n_id.text
+			return lbl
+		else return null
+	end
 end
 redef class AInstructionLine
 	redef fun size do return 4
@@ -88,4 +99,18 @@ redef class ADirectiveLine
 end
 redef class AEmptyLine
 	redef fun size do return 0
+end
+
+redef class MemVar
+	redef fun to_s do
+		var ltl = noter.model.address_to_line
+		if ltl.has_key(index) then
+			var line = ltl[index]
+			var lbl = line.lbl
+			if lbl != null then
+				return "{lbl}@m{index}"
+			end
+		end
+		return "m{index}"
+	end
 end
