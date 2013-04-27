@@ -383,9 +383,9 @@ redef class AAsciiDirective
 	redef fun accept_types_init_analysis(v, set)
 	do
 		# TODO AOperand::data
-		#for i in [0..v.data.len[ do
-		set.memory(v.current_line.address) = 'l'
-		#end
+		for i in [0..data.length[ do
+			set.memory(v.current_line.address+i) = 'l'
+		end
 	end
 end
 

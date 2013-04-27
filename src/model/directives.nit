@@ -15,7 +15,8 @@ redef class ABlockDirective
 	redef fun size do return n_value.to_i
 end
 redef class AAsciiDirective
-	redef fun size do return n_value.as(AStringValue).n_string.content.length
+	fun data: String do return n_value.as(AStringValue).n_string.content
+	redef fun size do return data.length
 end
 redef class AAddrssDirective
 	redef fun size do return 2
