@@ -592,7 +592,9 @@ redef class AOutputInstruction
 		if content == 'u' then
 			manager.notes.add(new Warn(location, "use of uninitialized values"))
 		else if content != 'l' then
-			manager.notes.add(new Warn(location, "use of non-ascii types ({content})"))
+			if content != 't' or manager.opt_report_unknown_types.value then
+				manager.notes.add(new Warn(location, "use of non-ascii types ({content})"))
+			end
 		end
 	end
 end
