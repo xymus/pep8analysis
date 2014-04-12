@@ -1,3 +1,13 @@
+# Pep/8 Analysis has moved!
+
+The Pep/8 Analysis tool has been merged in the official Nit repository under the /contrib/pep8analysis/ folder. 
+
+Link: https://github.com/privat/nit/tree/master/contrib/pep8analysis
+
+This repository is left available for historical purposes and redirection. Latest and future updates will be made available there, or in my fork at: https://github.com/xymus/nit/tree/master/contrib/pep8analysis
+
+---
+
 # Pep/8 Analysis
 
 This project provides tools to statically analyze Pep/8 programs in order to detect bugs or bad programming practices.
